@@ -14,7 +14,7 @@ const GlobalStyle = createGlobalStyle`
   body {
     font-family: ${({ theme }) => theme.fonts.sans};
     font-size: 16px;
-    line-height: 1.6;
+    line-height: 1.65;
     background: ${({ theme }) => theme.colors.bg};
     color: ${({ theme }) => theme.colors.text};
     -webkit-font-smoothing: antialiased;
@@ -28,27 +28,35 @@ const GlobalStyle = createGlobalStyle`
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: ${({ theme }) => theme.fonts.sans};
-    color: ${({ theme }) => theme.colors.textHeading};
-    font-weight: 600;
-    line-height: 1.2;
+    font-family: ${({ theme }) => theme.fonts.heading};
+    color: ${({ theme }) => theme.colors.text};
+    line-height: 1.15;
   }
 
   a {
-    color: ${({ theme }) => theme.colors.accent};
+    color: ${({ theme }) => theme.colors.violet};
     text-decoration: none;
+    transition: color 0.15s;
+    &:hover { color: ${({ theme }) => theme.colors.violetHover}; }
+  }
+
+  :focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.violet};
+    outline-offset: 3px;
+    border-radius: 3px;
   }
 
   code, pre, kbd {
     font-family: ${({ theme }) => theme.fonts.mono};
   }
 
-  ::-webkit-scrollbar {
-    width: 6px;
+  ::selection {
+    background: ${({ theme }) => theme.colors.magentaDim};
+    color: ${({ theme }) => theme.colors.text};
   }
-  ::-webkit-scrollbar-track {
-    background: ${({ theme }) => theme.colors.bg};
-  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: ${({ theme }) => theme.colors.bg}; }
   ::-webkit-scrollbar-thumb {
     background: ${({ theme }) => theme.colors.border};
     border-radius: 3px;

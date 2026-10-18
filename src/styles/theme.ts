@@ -1,23 +1,48 @@
 export const theme = {
   colors: {
-    bg: '#0d0e14',
-    surface: '#13141c',
-    border: '#1e2030',
-    text: '#a9b1d6',
-    textHeading: '#c0caf5',
-    accent: '#7aa2f7',
-    accentDim: 'rgba(122,162,247,0.15)',
-    green: '#9ece6a',
-    red: '#f7768e',
-    yellow: '#e0af68',
-    muted: '#565f89',
+    bg:      '#140A1E',
+    surface: '#1F1230',
+    border:  '#2E1C45',
+
+    text:  '#F5EDF8',
+    muted: '#B8A6C9',
+
+    magenta:        '#FF4FA3',
+    magentaHover:   '#FF73B8',
+    magentaPressed: '#E0357F',
+    magentaDim:     'rgba(255,79,163,0.12)',
+
+    mandarine:        '#FF9F45',
+    mandarineHover:   '#FFB46A',
+    mandarinePressed: '#E07E20',
+    mandarineDim:    'rgba(255,159,69,0.12)',
+
+    violet:        '#8B5CF6',
+    violetHover:   '#A78BFA',
+    violetPressed: '#6D28D9',
+    violetDim:     'rgba(139,92,246,0.15)',
+
+    success: '#3DDC97',
+    warning: '#FFC857',
+    danger:  '#FF6B6B',
+
+    gradientTerminal: 'linear-gradient(135deg, #FF4FA3, #FF9F45)',
   },
   fonts: {
-    sans: "'Inter', system-ui, sans-serif",
-    mono: "'JetBrains Mono', ui-monospace, monospace",
+    heading: "'Unbounded', system-ui, sans-serif",
+    sans:    "'DM Sans', system-ui, sans-serif",
+    mono:    "'JetBrains Mono', ui-monospace, monospace",
+  },
+  radius: {
+    sm:   '6px',
+    md:   '10px',
+    lg:   '16px',
+    xl:   '24px',
+    full: '9999px',
   },
   breakpoints: {
     md: '768px',
+    lg: '1100px',
   },
 } as const
 

@@ -4,30 +4,40 @@ import styled from 'styled-components'
 
 const Wrap = styled.div`
   font-family: ${({ theme }) => theme.fonts.mono};
-  padding: 2rem 0;
+  padding: 3rem 0;
 `
 
 const Code = styled.p`
-  color: ${({ theme }) => theme.colors.red};
-  font-size: 4rem;
-  font-weight: 500;
+  font-family: ${({ theme }) => theme.fonts.heading};
+  color: ${({ theme }) => theme.colors.magenta};
+  font-size: 5rem;
+  font-weight: 700;
   line-height: 1;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 `
 
 const Msg = styled.p`
   color: ${({ theme }) => theme.colors.muted};
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  font-size: 0.9rem;
 `
 
 const Cmd = styled.p`
-  color: ${({ theme }) => theme.colors.green};
-  margin-bottom: 0.5rem;
+  color: ${({ theme }) => theme.colors.mandarine};
+  margin-bottom: 0.4rem;
+  font-size: 0.875rem;
+`
+
+const Output = styled.p`
+  color: ${({ theme }) => theme.colors.muted};
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
 `
 
 const Back = styled(Link)`
-  color: ${({ theme }) => theme.colors.accent};
-  &:hover { text-decoration: underline; }
+  color: ${({ theme }) => theme.colors.violet};
+  font-size: 0.875rem;
+  &:hover { color: ${({ theme }) => theme.colors.violetHover}; }
 `
 
 export default function NotFound() {
@@ -38,10 +48,9 @@ export default function NotFound() {
         <Code>404</Code>
         <Msg>bash: page: command not found</Msg>
         <Cmd>$ ls /pages</Cmd>
-        <p>accueil  projets  writeups  a-propos  contact</p>
-        <br />
+        <Output>accueil  projets  writeups  a-propos  contact</Output>
         <Cmd>$ cd ~</Cmd>
-        <Back to="/">→ retour à l'accueil</Back>
+        <Back to="/">retour à l'accueil</Back>
       </Wrap>
     </>
   )

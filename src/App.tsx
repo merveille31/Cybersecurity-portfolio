@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 import Home from './pages/Home'
 import Projects from './pages/Projects'
+import ProjectDetail from './pages/ProjectDetail'
 import Writeups from './pages/Writeups'
 import WriteupsDetail from './pages/WriteupsDetail'
 import About from './pages/About'
@@ -15,6 +16,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="projets" element={<Projects />} />
+        <Route path="projets/:slug" element={<ProjectDetail />} />
         <Route path="writeups" element={<Writeups />} />
         <Route path="writeups/:slug" element={<WriteupsDetail />} />
         <Route path="a-propos" element={<About />} />

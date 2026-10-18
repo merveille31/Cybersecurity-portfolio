@@ -10,9 +10,13 @@ const Main = styled.main`
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 900px;
+  max-width: ${({ theme }) => theme.breakpoints.lg};
   margin: 0 auto;
-  padding: 2rem 1.5rem;
+  padding: 2.5rem 1.5rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: 1.5rem 1rem;
+  }
 `
 
 export default function Layout() {

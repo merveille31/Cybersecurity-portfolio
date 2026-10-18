@@ -23,16 +23,20 @@ const Bar = styled.header`
   height: 56px;
 `
 
-const Prompt = styled.span`
+const Logo = styled(NavLink)`
   font-family: ${({ theme }) => theme.fonts.mono};
-  font-size: 0.9rem;
-  color: ${({ theme }) => theme.colors.green};
+  font-size: 0.875rem;
+  color: ${({ theme }) => theme.colors.muted};
+  text-decoration: none;
   white-space: nowrap;
+  letter-spacing: -0.01em;
+
+  .dollar { color: ${({ theme }) => theme.colors.magenta}; }
 `
 
 const Links = styled.nav<{ $open: boolean }>`
   display: flex;
-  gap: 1.5rem;
+  gap: 1.75rem;
   align-items: center;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
@@ -44,23 +48,21 @@ const Links = styled.nav<{ $open: boolean }>`
     right: 0;
     background: ${({ theme }) => theme.colors.surface};
     border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-    padding: 1rem 1.5rem;
-    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    gap: 1.25rem;
   }
 `
 
 const StyledLink = styled(NavLink)`
-  font-size: 0.9rem;
-  color: ${({ theme }) => theme.colors.text};
-  transition: color 0.2s;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: ${({ theme }) => theme.colors.muted};
+  transition: color 0.15s;
 
-  &:hover {
-    color: ${({ theme }) => theme.colors.textHeading};
-  }
+  &:hover { color: ${({ theme }) => theme.colors.text}; }
 
   &.active {
-    color: ${({ theme }) => theme.colors.accent};
-    font-weight: 500;
+    color: ${({ theme }) => theme.colors.magenta};
   }
 `
 
@@ -69,21 +71,15 @@ const Burger = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  color: ${({ theme }) => theme.colors.text};
+  color: ${({ theme }) => theme.colors.muted};
   padding: 0.25rem;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   line-height: 1;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.accent};
-    outline-offset: 2px;
-    border-radius: 2px;
   }
 `
 
@@ -94,7 +90,9 @@ export default function Navbar() {
 
   return (
     <Bar>
-      <Prompt>~/carelle $</Prompt>
+      <Logo to="/" onClick={close} aria-label="Accueil">
+        ~/carelle <span className="dollar">$</span>
+      </Logo>
       <Burger
         onClick={toggle}
         aria-expanded={open}
@@ -105,12 +103,7 @@ export default function Navbar() {
       </Burger>
       <Links id="nav-links" $open={open} role="navigation" aria-label="Navigation principale">
         {NAV_LINKS.map(({ to, label }) => (
-          <StyledLink
-            key={to}
-            to={to}
-            end={to === '/'}
-            onClick={close}
-          >
+          <StyledLink key={to} to={to} end={to === '/'} onClick={close}>
             {label}
           </StyledLink>
         ))}

@@ -47,6 +47,14 @@ export type ProfileLinks = {
   [key: string]: string | undefined
 }
 
+export type ProfileSkills = {
+  offensif?: string[]
+  défensif?: string[]
+  réseau?: string[]
+  outils?: string[]
+  [key: string]: string[] | undefined
+}
+
 // ------------------------------------------------------------
 // Tables
 // ------------------------------------------------------------
@@ -61,6 +69,7 @@ export type Profile = {
   cv_url: string
   email_public: string
   links: ProfileLinks
+  skills: ProfileSkills
   updated_at: string
 }
 
@@ -129,6 +138,7 @@ export type Message = {
   subject: string
   body: string
   read: boolean
+  ip_hash: string | null
   created_at: string
 }
 

@@ -8,7 +8,7 @@
 -- ------------------------------------------------------------
 insert into public.profile (
   id, full_name, headline, bio, location,
-  avatar_url, cv_url, email_public, links
+  avatar_url, cv_url, email_public, links, skills
 ) values (
   1,
   'Carelle',
@@ -24,6 +24,12 @@ insert into public.profile (
     "rootme":    "https://www.root-me.org/carelle",
     "tryhackme": "https://tryhackme.com/p/carelle",
     "hackthebox": "https://app.hackthebox.com/profile/carelle"
+  }'::jsonb,
+  '{
+    "offensif":  ["Pentest web", "CTF", "Exploitation de vulnérabilités", "Reverse engineering"],
+    "défensif":  ["Analyse de logs", "Forensics", "SIEM", "Hardening Linux"],
+    "réseau":    ["Nmap", "Wireshark", "Protocoles TCP/IP", "Firewall"],
+    "outils":    ["Burp Suite", "Metasploit", "Python", "Git", "Docker"]
   }'::jsonb
 )
 on conflict (id) do update set
@@ -35,6 +41,7 @@ on conflict (id) do update set
   cv_url       = excluded.cv_url,
   email_public = excluded.email_public,
   links        = excluded.links,
+  skills       = excluded.skills,
   updated_at   = now();
 
 -- ------------------------------------------------------------

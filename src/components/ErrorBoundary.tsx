@@ -168,13 +168,13 @@ export function MisconfiguredScreen() {
       <Title>Configuration manquante</Title>
       <Msg>
         {isDev
-          ? 'Les variables VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY sont absentes. Créez un fichier .env à partir de .env.example.'
+          ? 'Les variables VITE_SUPABASE_URL et VITE_SUPABASE_PUBLISHABLE_KEY sont absentes. Créez un fichier .env.local à partir de .env.example.'
           : 'Le site n\'est pas correctement configuré. Contactez l\'administrateur.'}
       </Msg>
       {isDev && (
         <DevDetail>
           <summary>Comment corriger</summary>
-          <pre>{'cp .env.example .env\n# puis remplissez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY'}</pre>
+          <pre>{'cp .env.example .env.local\n# puis remplissez VITE_SUPABASE_URL et VITE_SUPABASE_PUBLISHABLE_KEY'}</pre>
         </DevDetail>
       )}
     </Wrap>

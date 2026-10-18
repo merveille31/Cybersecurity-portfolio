@@ -5,6 +5,8 @@ import { ThemeProvider } from 'styled-components'
 import { HelmetProvider } from 'react-helmet-async'
 import { theme } from './styles/theme'
 import GlobalStyle from './styles/GlobalStyle'
+import { ErrorBoundary, MisconfiguredScreen } from './components/ErrorBoundary'
+import { supabaseMisconfigured } from './lib/supabase'
 import App from './App'
 
 createRoot(document.getElementById('root')!).render(
@@ -12,9 +14,16 @@ createRoot(document.getElementById('root')!).render(
     <HelmetProvider>
       <ThemeProvider theme={theme}>
         <GlobalStyle />
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
+        <ErrorBoundary>
+          {supabaseMisconfigured
+            ? <MisconfiguredScreen />
+            : (
+              <BrowserRouter>
+                <App />
+              </BrowserRouter>
+            )
+          }
+        </ErrorBoundary>
       </ThemeProvider>
     </HelmetProvider>
   </StrictMode>,

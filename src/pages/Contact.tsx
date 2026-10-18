@@ -261,6 +261,7 @@ export default function Contact() {
   const subjectId = useId()
   const bodyId    = useId()
   const liveId    = useId()
+  // liveId est utilisé sur LiveRegion ci-dessous
 
   const reset = useCallback(() => {
     setName(''); setEmail(''); setSubject(''); setBody('')
@@ -427,7 +428,7 @@ export default function Contact() {
           </Form>
 
           {/* Zone d'annonces aria-live */}
-          <LiveRegion id={liveId} aria-live="polite" aria-atomic="true">
+          <LiveRegion id={liveId} aria-live="polite" aria-atomic="true" role="status">
             {formState === 'success' && (
               <SuccessBox role="status">
                 Message envoyé. Je vous répondrai dès que possible.

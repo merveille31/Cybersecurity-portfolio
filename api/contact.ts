@@ -43,6 +43,33 @@ function json(res: VercelResponse, status: number, body: Record<string, unknown>
   res.status(status).json(body)
 }
 
+// Noms acceptés pour les variables (le premier trouvé est utilisé)
+function serverEnv() {
+  return {
+    url: process.env.VITE_SUPABASE_URL ?? process.env.SUPABASE_URL,
+    secret: process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY,
+    salt: process.env.IP_HASH_SALT ?? '',
+  }
+}
+
+/**
+ * GET /api/contact : diagnostic de configuration. N'écrit rien et ne renvoie
+ * jamais de valeur secrète, seulement ce qui manque ou échoue.
+ */
+async function diagnose(res: VercelResponse) {
+  const { url, secret } = serverEnv()
+  const missing = [!url && 'VITE_SUPABASE_URL', !secret && 'SUPABASE_SECRET_KEY'].filter(Boolean)
+  if (missing.length > 0) {
+    return json(res, 200, { ready: false, problem: `variables manquantes : ${missing.join(', ')}` })
+  }
+  const supabase = createClient(url!, secret!, { auth: { persistSession: false } })
+  const { error } = await supabase.from('messages').select('id', { count: 'exact', head: true })
+  if (error) {
+    return json(res, 200, { ready: false, problem: `lecture de la table messages refusée (${error.code || error.message})` })
+  }
+  return json(res, 200, { ready: true })
+}
+
 // ------------------------------------------------------------
 // Handler
 // ------------------------------------------------------------
@@ -51,8 +78,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('X-Content-Type-Options', 'nosniff')
 
   // 1. Méthode
+  if (req.method === 'GET') return diagnose(res)
   if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST')
+    res.setHeader('Allow', 'GET, POST')
     return json(res, 405, { error: 'Méthode non autorisée.' })
   }
 
@@ -112,14 +140,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // 8. Variables d'environnement serveur
-  const supabaseUrl = process.env.VITE_SUPABASE_URL
-  const serviceKey  = process.env.SUPABASE_SECRET_KEY
-  const salt        = process.env.IP_HASH_SALT ?? ''
+  const { url: supabaseUrl, secret: serviceKey, salt } = serverEnv()
 
   if (!supabaseUrl || !serviceKey) {
     // Ne pas exposer le détail de la configuration
     console.error('[contact] Variables d\'environnement manquantes')
-    return json(res, 500, { error: 'Erreur de configuration serveur.' })
+    return json(res, 500, { error: 'Erreur de configuration serveur.', code: 'config' })
   }
 
   // 9. Client Supabase avec la clé service_role (contourne la RLS)
@@ -139,8 +165,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .gte('created_at', since)
 
   if (countError) {
-    console.error('[contact] Erreur rate-limit check')
-    return json(res, 500, { error: 'Erreur serveur, veuillez réessayer.' })
+    console.error('[contact] Erreur rate-limit check :', countError.code, countError.message)
+    return json(res, 500, { error: 'Erreur serveur, veuillez réessayer.', code: 'db_read' })
   }
 
   if ((count ?? 0) >= RATE_LIMIT) {
@@ -153,8 +179,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .insert({ name, email, subject, body: message, ip_hash: ipHash })
 
   if (insertError) {
-    console.error('[contact] Erreur insertion')
-    return json(res, 500, { error: 'Erreur serveur, veuillez réessayer.' })
+    console.error('[contact] Erreur insertion :', insertError.code, insertError.message)
+    return json(res, 500, { error: 'Erreur serveur, veuillez réessayer.', code: 'db_insert' })
   }
 
   return json(res, 201, { ok: true })

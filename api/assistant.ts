@@ -10,10 +10,11 @@ import { createClient } from '@supabase/supabase-js'
 // ------------------------------------------------------------
 
 const GROQ_ENDPOINT = 'https://api.groq.com/openai/v1/chat/completions'
+const GROQ_MODELS_ENDPOINT = 'https://api.groq.com/openai/v1/models'
 
-// Modèles essayés dans l'ordre : on bascule sur le suivant si le premier
-// est indisponible ou si son quota gratuit est atteint.
-const MODEL_CHAIN = [process.env.GROQ_MODEL, 'llama-3.3-70b-versatile', 'llama-3.1-8b-instant']
+// Modèles préférés, dans l'ordre. Seuls ceux encore proposés par Groq pour
+// cette clé sont essayés ; on bascule sur le suivant en cas d'échec.
+const MODEL_CHAIN = [process.env.GROQ_MODEL?.trim(), 'llama-3.3-70b-versatile', 'openai/gpt-oss-120b', 'llama-3.1-8b-instant', 'openai/gpt-oss-20b']
   .filter((m, i, list): m is string => Boolean(m) && list.indexOf(m) === i)
 
 const MAX_MESSAGES = 12
@@ -182,9 +183,35 @@ ${certs || 'Aucune.'}`
   return prompt
 }
 
+// Modèles de discussion réellement disponibles pour cette clé (mis en cache).
+// Groq retire régulièrement des modèles : on ne dépend donc pas d'une liste figée.
+let availableModels: { ids: string[]; expiresAt: number } | null = null
+
+async function listModels(apiKey: string): Promise<{ ok: boolean; status: number; ids: string[] }> {
+  if (availableModels && availableModels.expiresAt > Date.now()) {
+    return { ok: true, status: 200, ids: availableModels.ids }
+  }
+  const response = await fetch(GROQ_MODELS_ENDPOINT, { headers: { Authorization: `Bearer ${apiKey}` } })
+  if (!response.ok) return { ok: false, status: response.status, ids: [] }
+  const data = await response.json() as { data?: { id: string; active?: boolean }[] }
+  const ids = (data.data ?? [])
+    .filter(m => m.active !== false && !/whisper|tts|guard|prompt|embed|distil/i.test(m.id))
+    .map(m => m.id)
+  availableModels = { ids, expiresAt: Date.now() + 60 * 60 * 1000 }
+  return { ok: true, status: 200, ids }
+}
+
+/** Liste ordonnée : modèles préférés disponibles d'abord, puis le reste. */
+async function modelCandidates(apiKey: string): Promise<string[]> {
+  const { ids } = await listModels(apiKey).catch(() => ({ ids: [] as string[] }))
+  if (ids.length === 0) return MODEL_CHAIN
+  const preferred = MODEL_CHAIN.filter(m => ids.includes(m))
+  return [...preferred, ...ids.filter(m => !preferred.includes(m))].slice(0, 4)
+}
+
 async function callGroq(apiKey: string, body: Record<string, unknown>): Promise<Response | null> {
   let last: Response | null = null
-  for (const model of MODEL_CHAIN) {
+  for (const model of await modelCandidates(apiKey)) {
     const response = await fetch(GROQ_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
@@ -192,10 +219,37 @@ async function callGroq(apiKey: string, body: Record<string, unknown>): Promise<
     })
     if (response.ok) return response
     last = response
-    if (![404, 429, 500, 502, 503].includes(response.status)) break
-    console.warn(`[assistant] modèle ${model} indisponible (${response.status}), bascule`)
+    // 401/403 : clé refusée, inutile d'essayer d'autres modèles
+    if (response.status === 401 || response.status === 403) break
+    console.warn(`[assistant] modèle ${model} refusé (${response.status}), bascule`)
   }
   return last
+}
+
+/**
+ * GET /api/assistant : diagnostic de configuration (aucune valeur secrète renvoyée).
+ */
+async function diagnose(res: VercelResponse) {
+  const apiKey = process.env.GROQ_API_KEY?.trim()
+  if (!apiKey) return json(res, 200, { ready: false, problem: 'variable GROQ_API_KEY absente (redéployer après l\'ajout)' })
+  if (!apiKey.startsWith('gsk_')) return json(res, 200, { ready: false, problem: 'GROQ_API_KEY ne ressemble pas à une clé Groq (doit commencer par gsk_)' })
+
+  const models = await listModels(apiKey).catch(() => ({ ok: false, status: 0, ids: [] as string[] }))
+  if (!models.ok) {
+    return json(res, 200, {
+      ready: false,
+      problem: models.status === 401 ? 'clé Groq refusée (401) : la recréer et la recoller' : `Groq injoignable (${models.status})`,
+    })
+  }
+  const candidates = await modelCandidates(apiKey)
+  const configured = process.env.GROQ_MODEL
+  return json(res, 200, {
+    ready: candidates.length > 0,
+    model: candidates[0] ?? null,
+    ...(configured && !models.ids.includes(configured)
+      ? { warning: `GROQ_MODEL "${configured}" n'existe pas chez Groq, un autre modèle est utilisé` }
+      : {}),
+  })
 }
 
 // ------------------------------------------------------------
@@ -205,8 +259,9 @@ async function callGroq(apiKey: string, body: Record<string, unknown>): Promise<
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('X-Content-Type-Options', 'nosniff')
 
+  if (req.method === 'GET') return diagnose(res)
   if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST')
+    res.setHeader('Allow', 'GET, POST')
     return json(res, 405, { error: 'Méthode non autorisée.' })
   }
   if (!isSameOrigin(req)) return json(res, 403, { error: 'Origine non autorisée.' })
@@ -218,7 +273,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return json(res, 429, { error: 'Beaucoup de questions d\'un coup ! Réessayez dans quelques minutes.' })
   }
 
-  const apiKey = process.env.GROQ_API_KEY
+  const apiKey = process.env.GROQ_API_KEY?.trim()
   if (!apiKey) {
     console.error('[assistant] GROQ_API_KEY manquante')
     return json(res, 503, { error: 'L\'assistant n\'est pas encore configuré.' })
@@ -244,9 +299,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (!upstream || !upstream.ok || !upstream.body) {
     const status = upstream?.status ?? 502
-    console.error('[assistant] Groq :', status)
+    console.error('[assistant] Groq :', status, upstream ? (await upstream.text()).slice(0, 300) : 'pas de réponse')
     return json(res, status === 429 ? 429 : 502, {
       error: status === 429 ? 'Assistant très sollicité, réessayez dans un instant.' : 'Assistant indisponible pour le moment.',
+      code: `groq_${status}`,
     })
   }
 

@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import Navbar from './Navbar'
 import Footer from './Footer'
 import PageTransition from './PageTransition'
+import ChatAssistant from './ChatAssistant'
 
 const Main = styled.main`
   flex: 1;
@@ -21,6 +22,7 @@ const Main = styled.main`
 
 export default function Layout() {
   const location = useLocation()
+  const isAdmin = location.pathname.startsWith('/admin')
 
   return (
     <>
@@ -32,7 +34,8 @@ export default function Layout() {
           </PageTransition>
         </AnimatePresence>
       </Main>
-      <Footer />
+      {!isAdmin && <Footer />}
+      {!isAdmin && <ChatAssistant />}
     </>
   )
 }

@@ -8,7 +8,7 @@ En ligne : https://carelle-merveille.vercel.app
 
 - **Front** : React 19, TypeScript, Vite, styled-components, framer-motion, react-router
 - **Données** : Supabase (PostgreSQL + RLS + Storage)
-- **Serveur** : fonction Vercel `api/contact.ts` (formulaire de contact)
+- **Serveur** : fonctions Vercel `api/contact.ts` (formulaire) et `api/assistant.ts` (assistant IA Groq)
 - **Hébergement** : Vercel
 
 ## Structure
@@ -16,6 +16,7 @@ En ligne : https://carelle-merveille.vercel.app
 ```
 api/                    Fonctions serveur Vercel (clés secrètes uniquement ici)
   contact.ts            Réception des messages : validation, anti-spam, rate-limit
+  assistant.ts          Assistant IA (Groq) : contexte construit depuis les données publiées
 src/
   components/           Navbar, Footer, Terminal, BlockRenderer, ErrorBoundary…
   pages/                Accueil, Projets, Write-ups, À propos, Contact, Admin, 404
@@ -67,9 +68,10 @@ insert into public.admins (user_id) values ('UID-ICI');
 | Variable | Où | Rôle |
 | --- | --- | --- |
 | `VITE_SUPABASE_URL` | navigateur + serveur | URL du projet Supabase |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | navigateur | Clé publique (protégée par la RLS) |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | navigateur + serveur | Clé publique (protégée par la RLS), aussi lue par l'assistant |
 | `SUPABASE_SECRET_KEY` | serveur uniquement | Clé service_role, **jamais** préfixée `VITE_` |
 | `IP_HASH_SALT` | serveur uniquement | Sel pour hacher les IP du formulaire de contact |
-| `HF_TOKEN`, `HF_MODEL` | serveur uniquement | Réservées au futur assistant IA |
+| `GROQ_API_KEY` | serveur uniquement | Clé Groq de l'assistant IA (`api/assistant.ts`) |
+| `GROQ_MODEL` | serveur uniquement | Facultatif, défaut `llama-3.3-70b-versatile` |
 
 Après une modification des variables sur Vercel, il faut redéployer.

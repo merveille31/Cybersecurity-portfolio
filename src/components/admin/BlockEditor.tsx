@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import styled from 'styled-components'
 import BlockRenderer from '../BlockRenderer'
-import { Card, CardTitle, Toolbar, Actions, Button, Field, Input, Select, Textarea, Muted } from './form'
+import { Card, CardTitle, Toolbar, Actions, Button, Field, Input, Select, Textarea, Muted, UrlUploadInput } from './form'
 import type { ContentBlock, AlertLevel } from '../../types/database'
 
 // Éditeur de la colonne `content` (tableau de blocs) avec aperçu
@@ -36,7 +36,7 @@ const BlockCard = styled.div`
 const BlockType = styled.span`
   font-family: ${({ theme }) => theme.fonts.mono};
   font-size: 0.75rem;
-  color: ${({ theme }) => theme.colors.magenta};
+  color: ${({ theme }) => theme.colors.green};
 `
 
 const ModeSwitch = styled.div`
@@ -55,7 +55,7 @@ const ModeSwitch = styled.div`
     cursor: pointer;
   }
   button[aria-pressed='true'] {
-    background: ${({ theme }) => theme.colors.violetDim};
+    background: ${({ theme }) => theme.colors.blueDim};
     color: ${({ theme }) => theme.colors.text};
   }
 `
@@ -87,8 +87,8 @@ function BlockFields({ block, onChange }: { block: ContentBlock; onChange: (b: C
     case 'image':
       return (
         <>
-          <Field label="URL de l'image">
-            {id => <Input id={id} type="url" value={block.url} onChange={e => onChange({ ...block, url: e.target.value })} />}
+          <Field label="Image">
+            {id => <UrlUploadInput id={id} kind="image" value={block.url} onChange={url => onChange({ ...block, url })} />}
           </Field>
           <Field label="Légende (facultatif)">
             {id => <Input id={id} value={block.caption ?? ''} onChange={e => onChange({ ...block, caption: e.target.value })} />}

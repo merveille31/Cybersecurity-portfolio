@@ -7,7 +7,7 @@ import {
 import { Skeleton, ErrorMessage } from '../../components/ui'
 import {
   Card, CardTitle, Row, Toolbar, Actions, Field, Input, Textarea, TagInput, Checkbox,
-  Button, Notice, type NoticeState,
+  Button, Notice, UrlUploadInput, type NoticeState,
 } from '../../components/admin/form'
 import BlockEditor from '../../components/admin/BlockEditor'
 import EntryTable from '../../components/admin/EntryTable'
@@ -165,8 +165,8 @@ function ProjectForm({ initial }: { initial: Project | null }) {
           <Field label="Démo (URL)">
             {id => <Input id={id} type="url" value={values.demo_url} onChange={e => set('demo_url', e.target.value)} />}
           </Field>
-          <Field label="Image de couverture (URL)">
-            {id => <Input id={id} type="url" value={values.cover_url} onChange={e => set('cover_url', e.target.value)} />}
+          <Field label="Image de couverture">
+            {id => <UrlUploadInput id={id} kind="image" value={values.cover_url} onChange={url => set('cover_url', url)} />}
           </Field>
         </Row>
         <Row $cols={3}>

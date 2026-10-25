@@ -47,6 +47,45 @@ export async function adminSaveProfile(input: ProfileInput): Promise<void> {
 }
 
 // ------------------------------------------------------------
+// Fichiers (bucket public "media", écriture réservée aux admins par la RLS)
+// ------------------------------------------------------------
+
+const MAX_UPLOAD_BYTES = 5 * 1024 * 1024 // même limite que le bucket
+
+export const UPLOAD_KINDS = {
+  cv:     { folder: 'cv',      accept: 'application/pdf', types: ['application/pdf'], label: 'un PDF' },
+  avatar: { folder: 'avatars', accept: 'image/png,image/jpeg,image/webp', types: ['image/png', 'image/jpeg', 'image/webp'], label: 'une image PNG, JPEG ou WebP' },
+  image:  { folder: 'images',  accept: 'image/png,image/jpeg,image/webp', types: ['image/png', 'image/jpeg', 'image/webp'], label: 'une image PNG, JPEG ou WebP' },
+} as const
+
+export type UploadKind = keyof typeof UPLOAD_KINDS
+
+/** Envoie un fichier dans le bucket "media" et renvoie son URL publique. */
+export async function adminUploadFile(kind: UploadKind, file: File): Promise<string> {
+  const conf = UPLOAD_KINDS[kind]
+  if (!(conf.types as readonly string[]).includes(file.type)) throw new Error(`Format refusé : choisissez ${conf.label}.`)
+  if (file.size > MAX_UPLOAD_BYTES) throw new Error('Fichier trop lourd (5 Mo maximum).')
+
+  // Nom unique pour éviter que le navigateur garde l'ancienne version en cache
+  const ext = file.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'bin'
+  const base = slugify(file.name.replace(/\.[^.]+$/, '')) || kind
+  const path = `${conf.folder}/${Date.now()}-${base}.${ext}`
+
+  const { error } = await supabase.storage.from('media').upload(path, file, {
+    contentType: file.type,
+    cacheControl: '31536000',
+    upsert: false,
+  })
+  if (error) {
+    if (/row-level security|unauthorized|403/i.test(error.message)) {
+      throw new Error("Envoi refusé : ce compte n'est pas administrateur.")
+    }
+    throw new Error(error.message)
+  }
+  return supabase.storage.from('media').getPublicUrl(path).data.publicUrl
+}
+
+// ------------------------------------------------------------
 // Projets
 // ------------------------------------------------------------
 
@@ -145,7 +184,7 @@ export const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/
 export function slugify(input: string): string {
   return input
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/\p{Diacritic}/gu, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')

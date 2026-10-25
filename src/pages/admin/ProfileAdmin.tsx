@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useAdminQuery, adminFetchProfile, adminSaveProfile, errorText } from '../../lib/adminQueries'
 import { Skeleton, ErrorMessage } from '../../components/ui'
 import {
-  Card, CardTitle, Row, Field, Input, Textarea, TagInput, Button, Notice, Actions,
+  Card, CardTitle, Row, Field, Input, Textarea, TagInput, Button, Notice, Actions, UrlUploadInput,
   type NoticeState,
 } from '../../components/admin/form'
 import type { Profile, ProfileLinks, ProfileSkills } from '../../types/database'
@@ -52,7 +52,7 @@ function ProfileForm({ initial }: { initial: Profile | null }) {
     )
     try {
       await adminSaveProfile({ ...values, links })
-      setNotice({ kind: 'success', text: 'Profil enregistré.' })
+      setNotice({ kind: 'success', text: 'Profil enregistré. Les changements sont visibles sur le site.' })
     } catch (err) {
       setNotice({ kind: 'error', text: errorText(err) })
     } finally {
@@ -81,18 +81,20 @@ function ProfileForm({ initial }: { initial: Profile | null }) {
       </Card>
 
       <Card>
-        <CardTitle>Contact et fichiers</CardTitle>
+        <CardTitle>Contact, photo et CV</CardTitle>
         <Row>
           <Field label="E-mail public">
             {id => <Input id={id} type="email" value={values.email_public} onChange={e => set('email_public', e.target.value)} />}
           </Field>
-          <Field label="Photo (URL)">
-            {id => <Input id={id} type="url" value={values.avatar_url} onChange={e => set('avatar_url', e.target.value)} />}
+        </Row>
+        <Row>
+          <Field label="Photo de profil" hint="PNG, JPEG ou WebP, 5 Mo max. Format carré conseillé.">
+            {id => <UrlUploadInput id={id} kind="avatar" value={values.avatar_url} onChange={url => set('avatar_url', url)} />}
+          </Field>
+          <Field label="CV" hint="PDF, 5 Mo max. Les visiteurs pourront le voir et le télécharger.">
+            {id => <UrlUploadInput id={id} kind="cv" value={values.cv_url} onChange={url => set('cv_url', url)} />}
           </Field>
         </Row>
-        <Field label="CV (URL du PDF)">
-          {id => <Input id={id} type="url" value={values.cv_url} onChange={e => set('cv_url', e.target.value)} />}
-        </Field>
       </Card>
 
       <Card>

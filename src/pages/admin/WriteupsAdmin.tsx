@@ -7,7 +7,7 @@ import {
 import { Skeleton, ErrorMessage, Badge } from '../../components/ui'
 import {
   Card, CardTitle, Row, Toolbar, Actions, Field, Input, Select, Textarea, TagInput, Checkbox,
-  Button, Notice, type NoticeState,
+  Button, Notice, UrlUploadInput, type NoticeState,
 } from '../../components/admin/form'
 import BlockEditor from '../../components/admin/BlockEditor'
 import EntryTable from '../../components/admin/EntryTable'
@@ -195,8 +195,8 @@ function WriteupForm({ initial }: { initial: Writeup | null }) {
           {id => <TagInput id={id} value={values.tags} onChange={tags => set('tags', tags)} />}
         </Field>
         <Row $cols={3}>
-          <Field label="Image de couverture (URL)">
-            {id => <Input id={id} type="url" value={values.cover_url} onChange={e => set('cover_url', e.target.value)} />}
+          <Field label="Image de couverture">
+            {id => <UrlUploadInput id={id} kind="image" value={values.cover_url} onChange={url => set('cover_url', url)} />}
           </Field>
           <Field label="Date de publication" hint="Remplie automatiquement à la première publication.">
             {id => (

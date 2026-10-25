@@ -1,6 +1,7 @@
-import { useState, useId, type ReactNode, type KeyboardEvent } from 'react'
+import { useState, useId, useRef, type ReactNode, type KeyboardEvent, type ChangeEvent } from 'react'
 import styled, { css } from 'styled-components'
 import { Tag } from '../ui'
+import { adminUploadFile, errorText, UPLOAD_KINDS, type UploadKind } from '../../lib/adminQueries'
 
 // Briques de formulaire partagées par les écrans d'administration.
 
@@ -90,7 +91,7 @@ const inputStyle = css`
 
   &:focus {
     outline: none;
-    border-color: ${({ theme }) => theme.colors.violet};
+    border-color: ${({ theme }) => theme.colors.blue};
   }
 `
 
@@ -133,7 +134,7 @@ const CheckLabel = styled.label`
   font-size: 0.9rem;
   cursor: pointer;
 
-  input { accent-color: ${({ theme }) => theme.colors.magenta}; width: 1rem; height: 1rem; }
+  input { accent-color: ${({ theme }) => theme.colors.green}; width: 1rem; height: 1rem; }
 `
 
 export function Checkbox({
@@ -254,10 +255,10 @@ export const Button = styled.button<{ $variant?: Variant; $small?: boolean }>`
 
   ${({ $variant = 'primary', theme }) => {
     if ($variant === 'primary') return css`
-      background: ${theme.colors.magenta};
-      color: #140A1E;
-      border: 1px solid ${theme.colors.magenta};
-      &:hover:not(:disabled) { background: ${theme.colors.magentaHover}; color: #140A1E; }
+      background: ${theme.colors.green};
+      color: #03120B;
+      border: 1px solid ${theme.colors.green};
+      &:hover:not(:disabled) { background: ${theme.colors.greenHover}; color: #03120B; }
     `
     if ($variant === 'danger') return css`
       background: transparent;
@@ -269,7 +270,7 @@ export const Button = styled.button<{ $variant?: Variant; $small?: boolean }>`
       background: transparent;
       color: ${theme.colors.muted};
       border: 1px solid ${theme.colors.border};
-      &:hover:not(:disabled) { color: ${theme.colors.text}; border-color: ${theme.colors.violet}; }
+      &:hover:not(:disabled) { color: ${theme.colors.text}; border-color: ${theme.colors.blue}; }
     `
   }}
 
@@ -319,3 +320,70 @@ export const StatusPill = styled.span<{ $on: boolean }>`
   color: ${({ theme, $on }) => ($on ? theme.colors.success : theme.colors.warning)};
   border: 1px solid ${({ theme, $on }) => ($on ? theme.colors.success : theme.colors.warning)}55;
 `
+
+// ------------------------------------------------------------
+// Champ URL + envoi de fichier vers Supabase Storage
+// ------------------------------------------------------------
+
+const UploadRow = styled.div`
+  display: flex;
+  gap: 0.5rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    flex-direction: column;
+  }
+`
+
+const UploadStatus = styled.span<{ $error?: boolean }>`
+  font-size: 0.75rem;
+  color: ${({ theme, $error }) => ($error ? theme.colors.danger : theme.colors.muted)};
+  overflow-wrap: anywhere;
+
+  a { color: ${({ theme }) => theme.colors.blue}; }
+`
+
+export function UrlUploadInput({
+  id,
+  kind,
+  value,
+  onChange,
+}: {
+  id?: string
+  kind: UploadKind
+  value: string
+  onChange: (url: string) => void
+}) {
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const onFile = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = '' // permet de renvoyer le même fichier
+    if (!file) return
+    setUploading(true)
+    setError(null)
+    try {
+      onChange(await adminUploadFile(kind, file))
+    } catch (err) {
+      setError(errorText(err))
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  return (
+    <FieldWrap>
+      <UploadRow>
+        <Input id={id} type="url" placeholder="https://…" value={value} onChange={e => onChange(e.target.value)} />
+        <input ref={fileRef} type="file" accept={UPLOAD_KINDS[kind].accept} hidden onChange={onFile} />
+        <Button type="button" $variant="ghost" disabled={uploading} onClick={() => fileRef.current?.click()} style={{ whiteSpace: 'nowrap' }}>
+          {uploading ? 'Envoi…' : kind === 'cv' ? 'Envoyer un PDF' : 'Envoyer une image'}
+        </Button>
+      </UploadRow>
+      {error
+        ? <UploadStatus $error>{error}</UploadStatus>
+        : value && <UploadStatus><a href={value} target="_blank" rel="noreferrer">Ouvrir le fichier actuel ↗</a></UploadStatus>}
+    </FieldWrap>
+  )
+}

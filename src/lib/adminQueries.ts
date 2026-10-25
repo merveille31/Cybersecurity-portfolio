@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from './supabase'
-import type { Database, Profile, Project, Writeup, Certification } from '../types/database'
+import type { Database, Profile, Project, Writeup, Certification, TimelineEntry, Message, Modules } from '../types/database'
 
 // Requêtes de l'interface d'administration.
 // Contrairement à queries.ts, on lit aussi les brouillons (published = false) :
@@ -11,6 +11,7 @@ export type ProjectInput = Tables['projects']['Insert']
 export type WriteupInput = Tables['writeups']['Insert']
 export type CertificationInput = Tables['certifications']['Insert']
 export type ProfileInput = Tables['profile']['Update']
+export type TimelineInput = Tables['timeline']['Insert']
 
 function check<T>(data: T, error: { message: string; code?: string } | null): T {
   if (!error) return data
@@ -18,6 +19,10 @@ function check<T>(data: T, error: { message: string; code?: string } | null): T 
   if (error.code === '42501') throw new Error('Action refusée : ce compte n\'est pas administrateur.')
   // Mise à jour bloquée par la RLS ou ligne supprimée entre-temps : aucune ligne renvoyée
   if (error.code === 'PGRST116') throw new Error('Élément introuvable ou modification refusée.')
+  // Table ou colonne créée par une migration pas encore exécutée
+  if (error.code === 'PGRST205' || error.code === '42P01' || error.code === 'PGRST204' || error.code === '42703') {
+    throw new Error("La base n'est pas à jour : exécutez supabase/migrations/004_parcours_modules.sql dans Supabase.")
+  }
   throw new Error(error.message)
 }
 
@@ -172,6 +177,116 @@ export async function adminSaveCertification(
 export async function adminDeleteCertification(id: number): Promise<void> {
   const { data, error } = await supabase.from('certifications').delete().eq('id', id).select('id')
   ensureDeleted(check(data, error))
+}
+
+// ------------------------------------------------------------
+// Parcours (table timeline, migration 004)
+// ------------------------------------------------------------
+
+export async function adminFetchTimeline(): Promise<TimelineEntry[]> {
+  const { data, error } = await supabase
+    .from('timeline')
+    .select('*')
+    .order('start_date', { ascending: false })
+    .order('sort_order', { ascending: true })
+  return check((data ?? []) as TimelineEntry[], error)
+}
+
+export async function adminSaveTimeline(id: number | null, input: TimelineInput): Promise<void> {
+  const query = id === null
+    ? supabase.from('timeline').insert(input)
+    : supabase.from('timeline').update(input).eq('id', id)
+  const { data, error } = await query.select('id').single()
+  check(data, error)
+}
+
+export async function adminDeleteTimeline(id: number): Promise<void> {
+  const { data, error } = await supabase.from('timeline').delete().eq('id', id).select('id')
+  ensureDeleted(check(data, error))
+}
+
+// ------------------------------------------------------------
+// Messages du formulaire de contact
+// ------------------------------------------------------------
+
+export async function adminFetchMessages(): Promise<Message[]> {
+  const { data, error } = await supabase
+    .from('messages')
+    .select('id,name,email,subject,body,read,created_at')
+    .order('created_at', { ascending: false })
+    .limit(500)
+  return check((data ?? []) as Message[], error)
+}
+
+export async function adminSetMessageRead(id: number, read: boolean): Promise<void> {
+  const { data, error } = await supabase.from('messages').update({ read }).eq('id', id).select('id').single()
+  check(data, error)
+}
+
+export async function adminDeleteMessage(id: number): Promise<void> {
+  const { data, error } = await supabase.from('messages').delete().eq('id', id).select('id')
+  ensureDeleted(check(data, error))
+}
+
+// ------------------------------------------------------------
+// Modules (profile.modules, migration 004)
+// ------------------------------------------------------------
+
+export async function adminSaveModules(modules: Modules): Promise<void> {
+  const { data, error } = await supabase
+    .from('profile')
+    .update({ modules })
+    .eq('id', 1)
+    .select('id')
+    .single()
+  check(data, error)
+}
+
+// ------------------------------------------------------------
+// Vue d'ensemble
+// ------------------------------------------------------------
+
+export type Overview = {
+  projects: { total: number; published: number }
+  writeups: { total: number; published: number }
+  certifications: number
+  timeline: number | null // null : migration 004 absente
+  messages: { total: number; unread: number }
+  profileComplete: { label: string; ok: boolean }[]
+}
+
+async function countRows(table: 'projects' | 'writeups' | 'certifications' | 'timeline' | 'messages', filter?: [string, boolean]) {
+  let q = supabase.from(table).select('id', { count: 'exact', head: true })
+  if (filter) q = q.eq(filter[0], filter[1])
+  const { count, error } = await q
+  // Table absente : pas toujours d'erreur sur une requête "head", juste un compte nul
+  return error || count === null ? null : count
+}
+
+export async function adminFetchOverview(): Promise<Overview> {
+  const [pT, pP, wT, wP, c, t, mT, mU, profile] = await Promise.all([
+    countRows('projects'), countRows('projects', ['published', true]),
+    countRows('writeups'), countRows('writeups', ['published', true]),
+    countRows('certifications'), countRows('timeline'),
+    countRows('messages'), countRows('messages', ['read', false]),
+    adminFetchProfile().catch(() => null),
+  ])
+  const looksReal = (v: string | undefined) => Boolean(v) && !String(v).includes('example.com')
+  return {
+    projects: { total: pT ?? 0, published: pP ?? 0 },
+    writeups: { total: wT ?? 0, published: wP ?? 0 },
+    certifications: c ?? 0,
+    timeline: t,
+    messages: { total: mT ?? 0, unread: mU ?? 0 },
+    profileComplete: [
+      { label: 'Photo de profil', ok: looksReal(profile?.avatar_url) },
+      { label: 'CV en PDF', ok: looksReal(profile?.cv_url) },
+      { label: 'Bio', ok: Boolean(profile?.bio && profile.bio.length > 40) },
+      { label: 'E-mail public', ok: looksReal(profile?.email_public) },
+      { label: 'Lien LinkedIn', ok: looksReal(profile?.links?.linkedin) && !profile?.links?.linkedin?.endsWith('/in/carelle') },
+      { label: 'Compétences', ok: Object.values(profile?.skills ?? {}).some(list => list && list.length > 0) },
+    ],
+  }
 }
 
 // ------------------------------------------------------------

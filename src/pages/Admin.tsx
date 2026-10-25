@@ -10,6 +10,10 @@ import ProfileAdmin from './admin/ProfileAdmin'
 import { ProjectsList, ProjectEditor } from './admin/ProjectsAdmin'
 import { WriteupsList, WriteupEditor } from './admin/WriteupsAdmin'
 import CertificationsAdmin from './admin/CertificationsAdmin'
+import OverviewAdmin from './admin/OverviewAdmin'
+import MessagesAdmin from './admin/MessagesAdmin'
+import TimelineAdmin from './admin/TimelineAdmin'
+import ModulesAdmin from './admin/ModulesAdmin'
 
 // Chargée à la demande (React.lazy dans App.tsx) : rien de tout ceci
 // n'alourdit le site public.
@@ -101,27 +105,38 @@ function AdminArea({ session }: { session: Session }) {
           <Title>Administration</Title>
           <Who>{session.user.email}</Who>
         </div>
-        <Button $variant="ghost" $small onClick={() => signOut()}>Se déconnecter</Button>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <Button as="a" href="/" target="_blank" rel="noreferrer" $variant="ghost" $small>Voir le site ↗</Button>
+          <Button $variant="ghost" $small onClick={() => signOut()}>Se déconnecter</Button>
+        </div>
       </Header>
 
       <Tabs aria-label="Sections de l'administration">
+        <Tab to="/admin/accueil">Vue d'ensemble</Tab>
+        <Tab to="/admin/messages">Messages</Tab>
         <Tab to="/admin/profil">Profil</Tab>
+        <Tab to="/admin/parcours">Parcours</Tab>
         <Tab to="/admin/projets">Projets</Tab>
-        <Tab to="/admin/writeups">Write-ups</Tab>
+        <Tab to="/admin/blog">Blog</Tab>
         <Tab to="/admin/certifications">Certifications</Tab>
+        <Tab to="/admin/modules">Modules</Tab>
       </Tabs>
 
       <Routes>
-        <Route index element={<Navigate to="/admin/profil" replace />} />
+        <Route index element={<Navigate to="/admin/accueil" replace />} />
+        <Route path="accueil" element={<OverviewAdmin />} />
+        <Route path="messages" element={<MessagesAdmin />} />
         <Route path="profil" element={<ProfileAdmin />} />
+        <Route path="parcours" element={<TimelineAdmin />} />
+        <Route path="modules" element={<ModulesAdmin />} />
         <Route path="projets" element={<ProjectsList />} />
         <Route path="projets/nouveau" element={<ProjectEditor />} />
         <Route path="projets/:id" element={<ProjectEditor />} />
-        <Route path="writeups" element={<WriteupsList />} />
-        <Route path="writeups/nouveau" element={<WriteupEditor />} />
-        <Route path="writeups/:id" element={<WriteupEditor />} />
+        <Route path="blog" element={<WriteupsList />} />
+        <Route path="blog/nouveau" element={<WriteupEditor />} />
+        <Route path="blog/:id" element={<WriteupEditor />} />
         <Route path="certifications" element={<CertificationsAdmin />} />
-        <Route path="*" element={<Navigate to="/admin/profil" replace />} />
+        <Route path="*" element={<Navigate to="/admin/accueil" replace />} />
       </Routes>
     </>
   )

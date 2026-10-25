@@ -13,7 +13,7 @@ import BlockEditor from '../../components/admin/BlockEditor'
 import EntryTable from '../../components/admin/EntryTable'
 import type { Writeup, WriteupCategory, WriteupDifficulty } from '../../types/database'
 
-const BASE = '/admin/writeups'
+const BASE = '/admin/blog'
 
 // Mêmes valeurs que les contraintes CHECK de 001_init.sql
 const CATEGORIES: WriteupCategory[] = ['web', 'pwn', 'forensics', 'crypto', 'reverse', 'osint', 'réseau', 'autre']
@@ -34,8 +34,8 @@ export function WriteupsList() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       <Toolbar>
-        <CardTitle>Write-ups</CardTitle>
-        <Button as={Link} to={`${BASE}/nouveau`}>+ Nouveau write-up</Button>
+        <CardTitle>Blog</CardTitle>
+        <Button as={Link} to={`${BASE}/nouveau`}>+ Nouvel article</Button>
       </Toolbar>
       {q.status === 'loading' && <Skeleton $h="10rem" $radius="16px" />}
       {q.status === 'error' && <ErrorMessage message={q.error} />}
@@ -54,9 +54,9 @@ export function WriteupsList() {
             ),
           }))}
           basePath={BASE}
-          publicPath="/writeups"
+          publicPath="/blog"
           onDelete={onDelete}
-          emptyText="Aucun write-up. Rédigez le premier !"
+          emptyText="Aucun article. Rédigez le premier !"
         />
       )}
     </div>
@@ -85,7 +85,7 @@ function WriteupForm({ initial }: { initial: Writeup | null }) {
   const [pending, setPending] = useState(false)
   const [notice, setNotice] = useState<NoticeState>(
     (location.state as { created?: boolean } | null)?.created
-      ? { kind: 'success', text: 'Write-up créé.' }
+      ? { kind: 'success', text: 'Article créé.' }
       : null,
   )
 
@@ -138,8 +138,8 @@ function WriteupForm({ initial }: { initial: Writeup | null }) {
   return (
     <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       <Actions>
-        <Button as={Link} to={BASE} $variant="ghost" $small>← Write-ups</Button>
-        <CardTitle>{initial ? initial.title : 'Nouveau write-up'}</CardTitle>
+        <Button as={Link} to={BASE} $variant="ghost" $small>← Blog</Button>
+        <CardTitle>{initial ? initial.title : 'Nouvel article'}</CardTitle>
       </Actions>
 
       <Card>
@@ -158,7 +158,7 @@ function WriteupForm({ initial }: { initial: Writeup | null }) {
               />
             )}
           </Field>
-          <Field label="Slug (adresse)" hint={`/writeups/${values.slug || '…'}`} error={slugError}>
+          <Field label="Slug (adresse)" hint={`/blog/${values.slug || '…'}`} error={slugError}>
             {id => (
               <Input
                 id={id}
@@ -218,10 +218,10 @@ function WriteupForm({ initial }: { initial: Writeup | null }) {
       <Toolbar>
         <Actions>
           <Button type="submit" disabled={pending}>
-            {pending ? 'Enregistrement…' : initial ? 'Enregistrer' : 'Créer le write-up'}
+            {pending ? 'Enregistrement…' : initial ? 'Enregistrer' : "Créer l'article"}
           </Button>
           {initial?.published && (
-            <Button as="a" href={`/writeups/${initial.slug}`} target="_blank" rel="noreferrer" $variant="ghost">
+            <Button as="a" href={`/blog/${initial.slug}`} target="_blank" rel="noreferrer" $variant="ghost">
               Voir sur le site
             </Button>
           )}
@@ -247,6 +247,6 @@ export function WriteupEditor() {
 
   if (q.status === 'loading') return <Skeleton $h="24rem" $radius="16px" />
   if (q.status === 'error') return <ErrorMessage message={q.error} />
-  if (id && !q.data) return <ErrorMessage message="Write-up introuvable." />
+  if (id && !q.data) return <ErrorMessage message="Article introuvable." />
   return <WriteupForm key={id ?? 'nouveau'} initial={q.data} />
 }

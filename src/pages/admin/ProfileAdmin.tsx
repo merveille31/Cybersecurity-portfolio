@@ -33,7 +33,8 @@ const EMPTY: FormValues = {
 function ProfileForm({ initial }: { initial: Profile | null }) {
   const [values, setValues] = useState<FormValues>(() => {
     if (!initial) return EMPTY
-    const { id: _id, updated_at: _u, ...rest } = initial
+    // modules est géré par l'onglet Modules : on ne le renvoie pas d'ici
+    const { id: _id, updated_at: _u, modules: _m, ...rest } = initial
     return { ...EMPTY, ...rest, links: rest.links ?? {}, skills: rest.skills ?? {} }
   })
   const [pending, setPending] = useState(false)

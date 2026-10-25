@@ -387,3 +387,44 @@ export function UrlUploadInput({
     </FieldWrap>
   )
 }
+
+// ------------------------------------------------------------
+// Interrupteur (activation de module)
+// ------------------------------------------------------------
+
+const SwitchTrack = styled.button<{ $on: boolean }>`
+  position: relative;
+  flex-shrink: 0;
+  width: 44px;
+  height: 24px;
+  border-radius: ${({ theme }) => theme.radius.full};
+  border: 1px solid ${({ theme, $on }) => ($on ? theme.colors.green : theme.colors.borderStrong)};
+  background: ${({ theme, $on }) => ($on ? theme.colors.green : theme.colors.bg)};
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: ${({ $on }) => ($on ? '22px' : '2px')};
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: ${({ theme, $on }) => ($on ? theme.colors.onAccent : theme.colors.muted)};
+    transition: left 0.2s;
+  }
+`
+
+export function Switch({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
+  return (
+    <SwitchTrack
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      $on={checked}
+      onClick={() => onChange(!checked)}
+    />
+  )
+}

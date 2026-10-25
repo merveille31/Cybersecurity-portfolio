@@ -2,14 +2,15 @@ import { useState, useCallback, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import styled from 'styled-components'
+import { useQuery, fetchProfile } from '../lib/queries'
+import { isOn } from '../lib/modules'
 
-// Ordre de lecture d'un recruteur : qui est-elle → ce qu'elle a construit
-// → comment elle raisonne en CTF → la contacter (bouton à part).
+// Trois onglets + le bouton de contact. Projets et Blog suivent les modules
+// activés dans l'admin.
 const NAV_LINKS = [
-  { to: '/', label: 'Accueil' },
-  { to: '/a-propos', label: 'Parcours' },
-  { to: '/projets', label: 'Projets' },
-  { to: '/writeups', label: 'Write-ups CTF' },
+  { to: '/', label: 'Accueil', module: null },
+  { to: '/projets', label: 'Projets', module: 'projects' },
+  { to: '/blog', label: 'Blog', module: 'blog' },
 ]
 
 const Bar = styled.header`
@@ -177,6 +178,10 @@ export default function Navbar() {
     return () => window.removeEventListener('keydown', onKey)
   }, [open])
 
+  const profileQ = useQuery(useCallback(() => fetchProfile(), []))
+  const profile = profileQ.status === 'success' ? profileQ.data : null
+  const links = NAV_LINKS.filter(l => !l.module || isOn(profile, l.module))
+
   const isActive = (to: string) => (to === '/' ? pathname === '/' : pathname.startsWith(to))
 
   return (
@@ -187,7 +192,7 @@ export default function Navbar() {
         </Logo>
 
         <Links aria-label="Navigation principale">
-          {NAV_LINKS.map(({ to, label }) => (
+          {links.map(({ to, label }) => (
             <StyledLink key={to} to={to} end={to === '/'}>
               {isActive(to) && (
                 <ActivePill
@@ -222,7 +227,7 @@ export default function Navbar() {
             transition={{ duration: reduced ? 0 : 0.22, ease: 'easeOut' }}
           >
             <ul>
-              {[...NAV_LINKS, { to: '/contact', label: 'Me contacter' }].map(({ to, label }) => (
+              {[...links, { to: '/contact', label: 'Me contacter' }].map(({ to, label }) => (
                 <li key={to}>
                   <MobileLink to={to} end={to === '/'} onClick={close}>{label}</MobileLink>
                 </li>

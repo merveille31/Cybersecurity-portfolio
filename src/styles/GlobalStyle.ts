@@ -9,6 +9,7 @@ const GlobalStyle = createGlobalStyle`
 
   html {
     scroll-behavior: smooth;
+    overflow-x: clip;
   }
 
   body {
@@ -20,6 +21,9 @@ const GlobalStyle = createGlobalStyle`
       radial-gradient(800px 520px at 100% 0%, rgba(61,139,255,0.10), transparent 60%),
       ${({ theme }) => theme.colors.bg};
     background-attachment: fixed;
+    /* Les décors (halos du héros, badges) peuvent dépasser : jamais de scroll horizontal.
+       clip plutôt que hidden pour ne pas casser la navbar collante. */
+    overflow-x: clip;
     color: ${({ theme }) => theme.colors.text};
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

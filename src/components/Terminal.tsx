@@ -187,7 +187,7 @@ const TermLink = styled(Link)`
 // ------------------------------------------------------------
 // Commandes autorisées
 // ------------------------------------------------------------
-const COMMANDS = ['help', 'whoami', 'ls projets', 'ls writeups', 'cat certifications', 'contact', 'clear'] as const
+const COMMANDS = ['help', 'whoami', 'ls projets', 'ls blog', 'cat certifications', 'contact', 'clear'] as const
 const MAX_LEN = 100
 
 function fmtDate(iso: string | null) {
@@ -204,7 +204,7 @@ function buildResponse(raw: string, data: TerminalData): OutputLine {
       nodes: (
         <span>
           {'Commandes : '}
-          {(['whoami', 'ls projets', 'ls writeups', 'cat certifications', 'contact', 'clear'] as const).map((c, i, a) => (
+          {(['whoami', 'ls projets', 'ls blog', 'cat certifications', 'contact', 'clear'] as const).map((c, i, a) => (
             <span key={c}>
               <span style={{ color: '#22E58A' }}>{c}</span>
               {i < a.length - 1 ? ', ' : ''}
@@ -241,15 +241,15 @@ function buildResponse(raw: string, data: TerminalData): OutputLine {
     }
   }
 
-  if (cmd === 'ls writeups') {
-    if (!data.writeups.length) return { kind: 'output', nodes: <span>Aucun write-up publié.</span> }
+  if (cmd === 'ls blog' || cmd === 'ls writeups') {
+    if (!data.writeups.length) return { kind: 'output', nodes: <span>Aucun article publié.</span> }
     return {
       kind: 'output',
       nodes: (
         <span>
           {data.writeups.map((w, i) => (
             <span key={w.slug}>
-              <TermLink to={`/writeups/${w.slug}`}>{w.title}</TermLink>
+              <TermLink to={`/blog/${w.slug}`}>{w.title}</TermLink>
               {i < data.writeups.length - 1 ? '  ' : ''}
             </span>
           ))}

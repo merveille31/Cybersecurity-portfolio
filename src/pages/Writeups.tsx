@@ -123,11 +123,11 @@ export default function Writeups() {
 
   return (
     <>
-      <Helmet><title>Write-ups CTF · Carelle</title></Helmet>
+      <Helmet><title>Blog · Carelle</title></Helmet>
       <PageHeader
-        eyebrow="~/writeups"
-        title="Write-ups CTF"
-        intro="Mes résolutions de challenges de sécurité (CTF), étape par étape : la démarche, les outils, les erreurs et la solution."
+        eyebrow="~/blog"
+        title="Blog"
+        intro="Write-ups de CTF et notes de sécurité : je raconte chaque challenge étape par étape, la démarche, les outils, les fausses pistes et la solution."
       />
 
       <Controls>

@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate, useParams } from 'react-router-dom'
 import Layout from './components/Layout'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import Home from './pages/Home'
@@ -7,12 +7,17 @@ import Projects from './pages/Projects'
 import ProjectDetail from './pages/ProjectDetail'
 import Writeups from './pages/Writeups'
 import WriteupsDetail from './pages/WriteupsDetail'
-import About from './pages/About'
 import Contact from './pages/Contact'
 import NotFound from './pages/NotFound'
 
 // L'admin n'est téléchargée que lorsqu'on visite /admin
 const Admin = lazy(() => import('./pages/Admin'))
+
+// Anciennes adresses : /writeups est devenu /blog, /a-propos est sur l'accueil
+function LegacyWriteup() {
+  const { slug } = useParams()
+  return <Navigate to={`/blog/${slug ?? ''}`} replace />
+}
 
 const AdminFallback = (
   <div style={{
@@ -47,9 +52,11 @@ export default function App() {
         <Route index element={<Home />} />
         <Route path="projets" element={<Projects />} />
         <Route path="projets/:slug" element={<ProjectDetail />} />
-        <Route path="writeups" element={<Writeups />} />
-        <Route path="writeups/:slug" element={<WriteupsDetail />} />
-        <Route path="a-propos" element={<About />} />
+        <Route path="blog" element={<Writeups />} />
+        <Route path="blog/:slug" element={<WriteupsDetail />} />
+        <Route path="writeups" element={<Navigate to="/blog" replace />} />
+        <Route path="writeups/:slug" element={<LegacyWriteup />} />
+        <Route path="a-propos" element={<Navigate to="/#parcours" replace />} />
         <Route path="contact" element={<Contact />} />
         <Route
           path="admin/*"

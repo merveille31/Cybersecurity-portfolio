@@ -5,6 +5,7 @@ import { useQuery, fetchProfile } from '../lib/queries'
 import { openAssistant } from '../lib/assistant'
 import { PageHeader } from '../components/cards'
 import { SocialLinks, CvButtons } from '../components/ProfileLinks'
+import { isOn, visibleLinks } from '../lib/modules'
 
 // ------------------------------------------------------------
 // Styles
@@ -442,26 +443,28 @@ export default function Contact() {
             </InfoBlock>
           )}
 
-          {profile && Object.values(profile.links ?? {}).some(Boolean) && (
+          {profile && Object.keys(visibleLinks(profile)).length > 0 && (
             <InfoBlock>
               <InfoLabel>réseaux pros</InfoLabel>
-              <SocialLinks links={profile.links} />
+              <SocialLinks links={visibleLinks(profile)} />
             </InfoBlock>
           )}
 
-          {profile?.cv_url && (
+          {profile?.cv_url && isOn(profile, 'cv') && (
             <InfoBlock>
               <InfoLabel>cv</InfoLabel>
               <CvButtons url={profile.cv_url} />
             </InfoBlock>
           )}
 
-          <InfoBlock>
-            <InfoLabel>réponse immédiate</InfoLabel>
-            <AssistantHint type="button" onClick={() => openAssistant()}>
-              Une question rapide sur mon parcours ? Demandez à mon assistant IA →
-            </AssistantHint>
-          </InfoBlock>
+          {isOn(profile, 'assistant') && (
+            <InfoBlock>
+              <InfoLabel>réponse immédiate</InfoLabel>
+              <AssistantHint type="button" onClick={() => openAssistant()}>
+                Une question rapide sur mon parcours ? Demandez à mon assistant IA →
+              </AssistantHint>
+            </InfoBlock>
+          )}
         </InfoCol>
       </PageGrid>
     </>

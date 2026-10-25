@@ -178,7 +178,7 @@ export default function WriteupsDetail() {
     <>
       <Helmet><title>{wu.title} · Write-up · Carelle</title></Helmet>
 
-      <BackLink to="/writeups">← Write-ups</BackLink>
+      <BackLink to="/blog">← Blog</BackLink>
 
       <Header>
         <h1>{wu.title}</h1>

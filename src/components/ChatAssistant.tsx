@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import styled, { keyframes } from 'styled-components'
 import { askAssistant, onAssistantOpen, AssistantError, type ChatMessage } from '../lib/assistant'
+import { useQuery, fetchProfile } from '../lib/queries'
+import { isOn } from '../lib/modules'
 
 // Fenêtre de discussion avec l'assistant IA (bouton flottant en bas à droite).
 
@@ -15,7 +17,7 @@ const SUGGESTIONS = [
 
 const WELCOME: ChatMessage = {
   role: 'assistant',
-  content: "Bonjour ! Je suis l'assistant de Carelle. Posez-moi vos questions sur son parcours, ses compétences, ses projets ou ses write-ups CTF.",
+  content: "Bonjour ! Je suis l'assistant de Carelle. Posez-moi vos questions sur son parcours, ses compétences, ses projets ou ses articles de blog (write-ups CTF).",
 }
 
 // ------------------------------------------------------------
@@ -244,7 +246,7 @@ const Disclaimer = styled.p`
 // ------------------------------------------------------------
 // Mise en forme légère : **gras**, [texte](lien) et chemins internes /page
 // ------------------------------------------------------------
-const INLINE = /\*\*([^*]+)\*\*|\[([^\]]+)\]\(([^)\s]+)\)|(?<![\w.])(\/(?:projets|writeups|a-propos|contact)(?:\/[a-z0-9-]+)?)/g
+const INLINE = /\*\*([^*]+)\*\*|\[([^\]]+)\]\(([^)\s]+)\)|(?<![\w.])(\/(?:projets|blog|contact)(?:\/[a-z0-9-]+)?)/g
 
 function renderInline(text: string, onNavigate: () => void): ReactNode[] {
   const out: ReactNode[] = []
@@ -268,6 +270,7 @@ function renderInline(text: string, onNavigate: () => void): ReactNode[] {
 // Composant
 // ------------------------------------------------------------
 export default function ChatAssistant() {
+  const profileQ = useQuery(useCallback(() => fetchProfile(), []))
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([WELCOME])
   const [input, setInput] = useState('')
@@ -353,6 +356,9 @@ export default function ChatAssistant() {
   }
 
   const closeOnMobile = () => { if (window.innerWidth <= 480) setOpen(false) }
+
+  // Module désactivé dans l'admin : pas de bouton (on attend le profil pour décider)
+  if (profileQ.status !== 'success' || !isOn(profileQ.data, 'assistant')) return null
   const last = messages[messages.length - 1]
 
   return (

@@ -268,7 +268,7 @@ function formatDate(iso: string | null) {
 
 export function WriteupRow({ writeup, showTags = false }: { writeup: Writeup; showTags?: boolean }) {
   return (
-    <WriteupLink to={`/writeups/${writeup.slug}`}>
+    <WriteupLink to={`/blog/${writeup.slug}`}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', minWidth: 0 }}>
         <WriteupTitle>{writeup.title}</WriteupTitle>
         <WriteupMeta>

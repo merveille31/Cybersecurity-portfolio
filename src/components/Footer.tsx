@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { useQuery, fetchProfile } from '../lib/queries'
 import { SocialLinks } from './ProfileLinks'
+import { isOn, visibleLinks } from '../lib/modules'
 
 const Bar = styled.footer`
   margin-top: 5rem;
@@ -74,13 +75,13 @@ export default function Footer() {
           <p>{profile?.headline || 'Cybersécurité offensive et défensive.'}</p>
         </Brand>
         <Nav aria-label="Liens du pied de page">
-          <Link to="/a-propos">Parcours</Link>
+          <Link to="/">Accueil</Link>
           <Link to="/projets">Projets</Link>
-          <Link to="/writeups">Write-ups CTF</Link>
+          <Link to="/blog">Blog</Link>
           <Link to="/contact">Contact</Link>
-          {profile?.cv_url && <a href={profile.cv_url} target="_blank" rel="noopener noreferrer">CV (PDF)</a>}
+          {profile?.cv_url && isOn(profile, 'cv') && <a href={profile.cv_url} target="_blank" rel="noopener noreferrer">CV (PDF)</a>}
         </Nav>
-        <SocialLinks links={profile?.links} compact />
+        <SocialLinks links={visibleLinks(profile)} compact />
       </Inner>
       <Bottom>
         <span>© {YEAR} {name}</span>

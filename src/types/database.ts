@@ -156,27 +156,41 @@ export type Database = {
         Row: Profile
         Insert: Omit<Profile, 'updated_at'>
         Update: Partial<Omit<Profile, 'id'>>
+        Relationships: []
       }
       projects: {
         Row: Project
         Insert: Omit<Project, 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Omit<Project, 'id' | 'created_at'>>
+        Relationships: []
       }
       writeups: {
         Row: Writeup
         Insert: Omit<Writeup, 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Omit<Writeup, 'id' | 'created_at'>>
+        Relationships: []
       }
       certifications: {
         Row: Certification
         Insert: Omit<Certification, 'id'>
         Update: Partial<Omit<Certification, 'id'>>
+        Relationships: []
       }
       messages: {
         Row: Message
         Insert: MessageInsert
         Update: Pick<Message, 'read'>
+        Relationships: []
       }
     }
+    Views: Record<string, never>
+    Functions: {
+      is_admin: {
+        Args: Record<string, never>
+        Returns: boolean
+      }
+    }
+    Enums: Record<string, never>
+    CompositeTypes: Record<string, never>
   }
 }

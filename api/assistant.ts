@@ -209,13 +209,21 @@ async function modelCandidates(apiKey: string): Promise<string[]> {
   return [...preferred, ...ids.filter(m => !preferred.includes(m))].slice(0, 4)
 }
 
+// Les modèles « raisonnants » (gpt-oss, qwen…) réfléchissent avant de répondre :
+// on limite cette réflexion et on la masque, sinon elle consomme le budget de tokens.
+function reasoningOptions(model: string): Record<string, unknown> {
+  if (model.startsWith('openai/gpt-oss')) return { reasoning_effort: 'low', include_reasoning: false, max_tokens: MAX_TOKENS * 2 }
+  if (/qwen|deepseek/i.test(model)) return { reasoning_format: 'hidden', max_tokens: MAX_TOKENS * 2 }
+  return {}
+}
+
 async function callGroq(apiKey: string, body: Record<string, unknown>): Promise<Response | null> {
   let last: Response | null = null
   for (const model of await modelCandidates(apiKey)) {
     const response = await fetch(GROQ_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({ ...body, model }),
+      body: JSON.stringify({ ...body, ...reasoningOptions(model), model }),
     })
     if (response.ok) return response
     last = response

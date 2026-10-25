@@ -63,9 +63,12 @@ async function diagnose(res: VercelResponse) {
     return json(res, 200, { ready: false, problem: `variables manquantes : ${missing.join(', ')}` })
   }
   const supabase = createClient(url!, secret!, { auth: { persistSession: false } })
-  const { error } = await supabase.from('messages').select('id', { count: 'exact', head: true })
+  const { error, status } = await supabase.from('messages').select('id', { count: 'exact', head: true })
   if (error) {
-    return json(res, 200, { ready: false, problem: `lecture de la table messages refusée (${error.code || error.message})` })
+    const hint = status === 401 || status === 403
+      ? 'SUPABASE_SECRET_KEY refusée : mettre la clé secrète (service_role / sb_secret_…), pas la clé publique'
+      : `erreur ${status} ${error.code ?? ''}`.trim()
+    return json(res, 200, { ready: false, problem: hint })
   }
   return json(res, 200, { ready: true })
 }

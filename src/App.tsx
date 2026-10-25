@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 import { ErrorBoundary } from './components/ErrorBoundary'
@@ -8,8 +9,10 @@ import Writeups from './pages/Writeups'
 import WriteupsDetail from './pages/WriteupsDetail'
 import About from './pages/About'
 import Contact from './pages/Contact'
-import Admin from './pages/Admin'
 import NotFound from './pages/NotFound'
+
+// L'admin n'est téléchargée que lorsqu'on visite /admin
+const Admin = lazy(() => import('./pages/Admin'))
 
 const AdminFallback = (
   <div style={{
@@ -49,10 +52,12 @@ export default function App() {
         <Route path="a-propos" element={<About />} />
         <Route path="contact" element={<Contact />} />
         <Route
-          path="admin"
+          path="admin/*"
           element={
             <ErrorBoundary fallback={AdminFallback}>
-              <Admin />
+              <Suspense fallback={null}>
+                <Admin />
+              </Suspense>
             </ErrorBoundary>
           }
         />

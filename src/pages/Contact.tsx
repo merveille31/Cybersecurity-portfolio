@@ -2,6 +2,9 @@ import { useState, useCallback, useEffect, useRef, useId } from 'react'
 import { Helmet } from 'react-helmet-async'
 import styled from 'styled-components'
 import { useQuery, fetchProfile } from '../lib/queries'
+import { openAssistant } from '../lib/assistant'
+import { PageHeader } from '../components/cards'
+import { SocialLinks, CvButtons } from '../components/ProfileLinks'
 
 // ------------------------------------------------------------
 // Styles
@@ -18,22 +21,6 @@ const PageGrid = styled.div`
   }
 `
 
-const PageTitle = styled.h1`
-  font-family: ${({ theme }) => theme.fonts.heading};
-  font-size: clamp(1.6rem, 4vw, 2.25rem);
-  font-weight: 700;
-  margin: 0 0 0.5rem;
-`
-
-const Intro = styled.p`
-  color: ${({ theme }) => theme.colors.muted};
-  font-size: 0.975rem;
-  line-height: 1.65;
-  max-width: 52ch;
-  margin-bottom: 2rem;
-`
-
-// Formulaire
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -57,14 +44,14 @@ const baseInput = `
   padding: 0.6rem 0.875rem;
   border-radius: 10px;
   border: 1px solid;
-  background: #1F1230;
+  background: #0B131A;
   font-family: inherit;
   font-size: 0.9rem;
   line-height: 1.5;
   transition: border-color 0.15s;
-  color: #F5EDF8;
+  color: #EAF5F1;
 
-  &::placeholder { color: #B8A6C9; opacity: 0.7; }
+  &::placeholder { color: #8DA2AF; opacity: 0.7; }
   &:focus { outline: none; }
 `
 
@@ -73,9 +60,9 @@ const Input = styled.input<{ $error?: boolean }>`
   border-color: ${({ $error, theme }) => $error ? theme.colors.danger : theme.colors.border};
 
   &:focus {
-    border-color: ${({ $error, theme }) => $error ? theme.colors.danger : theme.colors.violet};
+    border-color: ${({ $error, theme }) => $error ? theme.colors.danger : theme.colors.blue};
     box-shadow: 0 0 0 3px ${({ $error, theme }) =>
-      $error ? theme.colors.danger + '22' : theme.colors.violetDim};
+      $error ? theme.colors.danger + '22' : theme.colors.blueDim};
   }
 `
 
@@ -86,9 +73,9 @@ const Textarea = styled.textarea<{ $error?: boolean }>`
   border-color: ${({ $error, theme }) => $error ? theme.colors.danger : theme.colors.border};
 
   &:focus {
-    border-color: ${({ $error, theme }) => $error ? theme.colors.danger : theme.colors.violet};
+    border-color: ${({ $error, theme }) => $error ? theme.colors.danger : theme.colors.blue};
     box-shadow: 0 0 0 3px ${({ $error, theme }) =>
-      $error ? theme.colors.danger + '22' : theme.colors.violetDim};
+      $error ? theme.colors.danger + '22' : theme.colors.blueDim};
   }
 `
 
@@ -117,11 +104,11 @@ const Honeypot = styled.div`
 
 const SubmitBtn = styled.button<{ $loading?: boolean }>`
   align-self: flex-start;
-  padding: 0.65rem 1.75rem;
-  border-radius: ${({ theme }) => theme.radius.md};
+  padding: 0.75rem 1.9rem;
+  border-radius: ${({ theme }) => theme.radius.full};
   border: none;
-  background: ${({ theme }) => theme.colors.magenta};
-  color: #140A1E;
+  background: ${({ theme }) => theme.colors.green};
+  color: #03120B;
   font-family: ${({ theme }) => theme.fonts.sans};
   font-size: 0.9rem;
   font-weight: 600;
@@ -129,10 +116,13 @@ const SubmitBtn = styled.button<{ $loading?: boolean }>`
   opacity: ${({ $loading }) => $loading ? 0.7 : 1};
   transition: background 0.15s, opacity 0.15s;
 
-  &:hover:not(:disabled) { background: ${({ theme }) => theme.colors.magentaHover}; }
-  &:active:not(:disabled) { background: ${({ theme }) => theme.colors.magentaPressed}; }
+  &:hover:not(:disabled) {
+    background: ${({ theme }) => theme.colors.greenHover};
+    box-shadow: ${({ theme }) => theme.shadow.glowGreen};
+  }
+  &:active:not(:disabled) { background: ${({ theme }) => theme.colors.greenPressed}; }
   &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.violet};
+    outline: 2px solid ${({ theme }) => theme.colors.blue};
     outline-offset: 3px;
   }
 `
@@ -186,31 +176,32 @@ const InfoBlock = styled.div`
 const InfoLabel = styled.p`
   font-family: ${({ theme }) => theme.fonts.mono};
   font-size: 0.72rem;
-  color: ${({ theme }) => theme.colors.mandarine};
+  color: ${({ theme }) => theme.colors.cyan};
   margin: 0;
 `
 
 const InfoEmail = styled.a`
   font-size: 0.9rem;
-  color: ${({ theme }) => theme.colors.violet};
+  color: ${({ theme }) => theme.colors.blue};
   text-decoration: underline;
   text-underline-offset: 3px;
   word-break: break-all;
-  &:hover { color: ${({ theme }) => theme.colors.violetHover}; }
+  &:hover { color: ${({ theme }) => theme.colors.blueHover}; }
 `
 
-const ProfileLinks = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-`
-
-const ProfileLink = styled.a`
+const AssistantHint = styled.button`
+  text-align: left;
+  padding: 0.85rem 1rem;
+  border-radius: ${({ theme }) => theme.radius.md};
+  border: 1px dashed rgba(61, 139, 255, 0.5);
+  background: ${({ theme }) => theme.colors.blueDim};
+  color: ${({ theme }) => theme.colors.text};
+  font: inherit;
   font-size: 0.875rem;
-  color: ${({ theme }) => theme.colors.muted};
-  text-decoration: none;
-  transition: color 0.15s;
-  &:hover { color: ${({ theme }) => theme.colors.text}; }
+  line-height: 1.5;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  &:hover { border-color: ${({ theme }) => theme.colors.blue}; }
 `
 
 // ------------------------------------------------------------
@@ -218,14 +209,6 @@ const ProfileLink = styled.a`
 // ------------------------------------------------------------
 const BODY_MAX = 5000
 const BODY_WARN = 4500
-
-const LINK_LABELS: Record<string, string> = {
-  github:    'GitHub',
-  linkedin:  'LinkedIn',
-  rootme:    'Root-Me',
-  tryhackme: 'TryHackMe',
-  hackthebox:'HackTheBox',
-}
 
 type FormState = 'idle' | 'loading' | 'success' | 'error' | 'ratelimit'
 
@@ -319,11 +302,11 @@ export default function Contact() {
     <>
       <Helmet><title>Contact · Carelle</title></Helmet>
 
-      <PageTitle>Contact</PageTitle>
-      <Intro>
-        Une question, une proposition de collaboration ou juste envie d'échanger ?
-        Remplissez le formulaire, je vous répondrai dès que possible.
-      </Intro>
+      <PageHeader
+        eyebrow="~/contact"
+        title="Me contacter"
+        intro="Une offre de stage ou d'alternance, une question sur un projet ou juste envie d'échanger ? Écrivez-moi, je réponds rapidement."
+      />
 
       <PageGrid>
         {/* Formulaire */}
@@ -459,25 +442,26 @@ export default function Contact() {
             </InfoBlock>
           )}
 
-          {profile?.links && Object.entries(profile.links).some(([, v]) => !!v) && (
+          {profile && Object.values(profile.links ?? {}).some(Boolean) && (
             <InfoBlock>
-              <InfoLabel>retrouvez-moi</InfoLabel>
-              <ProfileLinks>
-                {Object.entries(profile.links)
-                  .filter(([, v]) => !!v)
-                  .map(([key, url]) => (
-                    <ProfileLink
-                      key={key}
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {LINK_LABELS[key] ?? key}
-                    </ProfileLink>
-                  ))}
-              </ProfileLinks>
+              <InfoLabel>réseaux pros</InfoLabel>
+              <SocialLinks links={profile.links} />
             </InfoBlock>
           )}
+
+          {profile?.cv_url && (
+            <InfoBlock>
+              <InfoLabel>cv</InfoLabel>
+              <CvButtons url={profile.cv_url} />
+            </InfoBlock>
+          )}
+
+          <InfoBlock>
+            <InfoLabel>réponse immédiate</InfoLabel>
+            <AssistantHint type="button" onClick={() => openAssistant()}>
+              Une question rapide sur mon parcours ? Demandez à mon assistant IA →
+            </AssistantHint>
+          </InfoBlock>
         </InfoCol>
       </PageGrid>
     </>

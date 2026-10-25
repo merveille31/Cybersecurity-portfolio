@@ -10,14 +10,25 @@ const WRITEUP_LIST_COLS =
 // Requêtes
 // ------------------------------------------------------------
 
-export async function fetchProfile(): Promise<Profile | null> {
-  const { data, error } = await supabase
-    .from('profile')
-    .select('*')
-    .eq('id', 1)
-    .maybeSingle()
-  if (error) throw new Error(error.message)
-  return data as Profile | null
+// Le profil est lu par plusieurs composants d'une même page (pied de page,
+// accueil, assistant) : on partage la même requête pendant une minute.
+const PROFILE_TTL_MS = 60_000
+let profileCache: { promise: Promise<Profile | null>; at: number } | null = null
+
+export function fetchProfile(): Promise<Profile | null> {
+  if (profileCache && Date.now() - profileCache.at < PROFILE_TTL_MS) return profileCache.promise
+  const promise = (async () => {
+    const { data, error } = await supabase
+      .from('profile')
+      .select('*')
+      .eq('id', 1)
+      .maybeSingle()
+    if (error) throw new Error(error.message)
+    return data as Profile | null
+  })()
+  profileCache = { promise, at: Date.now() }
+  promise.catch(() => { profileCache = null })
+  return promise
 }
 
 export async function fetchCertifications(): Promise<Certification[]> {

@@ -17,12 +17,14 @@ const Dollar = styled.span`
   color: ${({ theme }) => theme.colors.magenta};
 `
 
+const YEAR = new Date().getFullYear()
+
 export default function Footer() {
   return (
     <Bar>
       <span>carelle@portfolio:~</span>
       <Dollar>$</Dollar>
-      <span>© {new Date().getFullYear()}</span>
+      <span>© {YEAR}</span>
     </Bar>
   )
 }

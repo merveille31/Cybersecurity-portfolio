@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useId } from 'react'
+import { useState, useCallback, useEffect, useRef, useId } from 'react'
 import { Helmet } from 'react-helmet-async'
 import styled from 'styled-components'
 import { useQuery, fetchProfile } from '../lib/queries'
@@ -254,7 +254,8 @@ export default function Contact() {
   // Honeypot
   const honeypotRef = useRef<HTMLInputElement>(null)
   // Horodatage d'affichage du formulaire
-  const shownAtRef = useRef<number>(Date.now())
+  const shownAtRef = useRef<number>(0)
+  useEffect(() => { shownAtRef.current = Date.now() }, [])
 
   const nameId    = useId()
   const emailId   = useId()

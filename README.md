@@ -46,7 +46,8 @@ Dans l'éditeur SQL de Supabase, exécuter dans cet ordre :
 1. `supabase/migrations/001_init.sql`: tables, RLS, bucket `media`
 2. `supabase/migrations/002_profile_skills.sql`: compétences du profil
 3. `supabase/migrations/003_contact_server_only.sql`: messages insérables uniquement par le serveur
-4. `supabase/seed.sql`: données d'exemple (facultatif)
+4. `supabase/migrations/004_parcours_modules.sql`: parcours (frise de l'accueil) et modules activables
+5. `supabase/seed.sql`: données d'exemple (facultatif)
 
 Le contenu (profil, projets, write-ups) est rédigé sous forme de blocs JSON :
 `text` (markdown), `code`, `image`, `alert`.

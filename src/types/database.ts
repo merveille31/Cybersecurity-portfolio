@@ -59,6 +59,9 @@ export type ProfileSkills = {
 // Tables
 // ------------------------------------------------------------
 
+/** Modules activables depuis l'admin. Clé absente = module activé. */
+export type Modules = Record<string, boolean>
+
 export type Profile = {
   id: 1
   full_name: string
@@ -70,6 +73,7 @@ export type Profile = {
   email_public: string
   links: ProfileLinks
   skills: ProfileSkills
+  modules?: Modules // absente tant que la migration 004 n'est pas appliquée
   updated_at: string
 }
 
@@ -115,6 +119,24 @@ export type Writeup = {
   cover_url: string
   published: boolean
   published_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type TimelineKind = 'formation' | 'experience' | 'certification' | 'projet' | 'engagement' | 'autre'
+
+export type TimelineEntry = {
+  id: number
+  kind: TimelineKind
+  title: string
+  organization: string
+  location: string
+  start_date: string
+  end_date: string | null
+  description: string
+  tags: string[]
+  published: boolean
+  sort_order: number
   created_at: string
   updated_at: string
 }
@@ -174,6 +196,12 @@ export type Database = {
         Row: Certification
         Insert: Omit<Certification, 'id'>
         Update: Partial<Omit<Certification, 'id'>>
+        Relationships: []
+      }
+      timeline: {
+        Row: TimelineEntry
+        Insert: Omit<TimelineEntry, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<TimelineEntry, 'id' | 'created_at'>>
         Relationships: []
       }
       messages: {

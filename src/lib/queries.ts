@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabase'
-import type { Project, Writeup, Profile, Certification } from '../types/database'
+import type { Project, Writeup, Profile, Certification, TimelineEntry } from '../types/database'
 
 const PROJECT_LIST_COLS = 'id,slug,title,summary,tags,cover_url,featured,sort_order' as const
 const WRITEUP_LIST_COLS =
@@ -29,6 +29,19 @@ export function fetchProfile(): Promise<Profile | null> {
   profileCache = { promise, at: Date.now() }
   promise.catch(() => { profileCache = null })
   return promise
+}
+
+export async function fetchTimeline(): Promise<TimelineEntry[]> {
+  const { data, error } = await supabase
+    .from('timeline')
+    .select('*')
+    .eq('published', true)
+    .order('start_date', { ascending: false })
+    .order('sort_order', { ascending: true })
+  // Table absente tant que la migration 004 n'est pas appliquée : section vide
+  if (error && (error.code === 'PGRST205' || error.code === '42P01')) return []
+  if (error) throw new Error(error.message)
+  return (data ?? []) as TimelineEntry[]
 }
 
 export async function fetchCertifications(): Promise<Certification[]> {

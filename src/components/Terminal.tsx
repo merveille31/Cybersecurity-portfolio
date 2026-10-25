@@ -30,14 +30,14 @@ const Outer = styled.div`
   position: relative;
   border-radius: ${({ theme }) => theme.radius.xl};
   padding: 2px;
-  background: ${({ theme }) => theme.colors.gradientTerminal};
+  background: ${({ theme }) => theme.colors.gradient};
 
   &::before {
     content: '';
     position: absolute;
     inset: -16px;
     border-radius: calc(${({ theme }) => theme.radius.xl} + 16px);
-    background: ${({ theme }) => theme.colors.gradientTerminal};
+    background: ${({ theme }) => theme.colors.gradient};
     opacity: 0.15;
     filter: blur(24px);
     z-index: -1;
@@ -98,7 +98,7 @@ const OutputArea = styled.div`
 
 const InputEcho = styled.div`
   color: ${({ theme }) => theme.colors.muted};
-  &::before { content: '$ '; color: ${({ theme }) => theme.colors.magenta}; }
+  &::before { content: '$ '; color: ${({ theme }) => theme.colors.green}; }
 `
 
 const ErrorText = styled.div`
@@ -122,7 +122,7 @@ const InputRow = styled.div`
 const PromptSign = styled.span`
   font-family: ${({ theme }) => theme.fonts.mono};
   font-size: 0.8rem;
-  color: ${({ theme }) => theme.colors.magenta};
+  color: ${({ theme }) => theme.colors.green};
   flex-shrink: 0;
   user-select: none;
 `
@@ -135,7 +135,7 @@ const TextInput = styled.input`
   font-family: ${({ theme }) => theme.fonts.mono};
   font-size: 0.8rem;
   color: ${({ theme }) => theme.colors.text};
-  caret-color: ${({ theme }) => theme.colors.magenta};
+  caret-color: ${({ theme }) => theme.colors.green};
   min-width: 0;
 `
 
@@ -143,7 +143,7 @@ const Cursor = styled.span`
   display: inline-block;
   width: 7px;
   height: 0.9em;
-  background: ${({ theme }) => theme.colors.magenta};
+  background: ${({ theme }) => theme.colors.green};
   animation: ${blink} 1s step-end infinite;
   vertical-align: text-bottom;
   flex-shrink: 0;
@@ -171,17 +171,17 @@ const SugBtn = styled.button`
   transition: border-color 0.15s, color 0.15s;
 
   &:hover, &:focus-visible {
-    border-color: ${({ theme }) => theme.colors.magenta};
-    color: ${({ theme }) => theme.colors.magenta};
+    border-color: ${({ theme }) => theme.colors.green};
+    color: ${({ theme }) => theme.colors.green};
     outline: none;
   }
 `
 
 const TermLink = styled(Link)`
-  color: ${({ theme }) => theme.colors.violet};
+  color: ${({ theme }) => theme.colors.blue};
   text-decoration: underline;
   text-underline-offset: 2px;
-  &:hover { color: ${({ theme }) => theme.colors.violetHover}; }
+  &:hover { color: ${({ theme }) => theme.colors.blueHover}; }
 `
 
 // ------------------------------------------------------------
@@ -206,7 +206,7 @@ function buildResponse(raw: string, data: TerminalData): OutputLine {
           {'Commandes : '}
           {(['whoami', 'ls projets', 'ls writeups', 'cat certifications', 'contact', 'clear'] as const).map((c, i, a) => (
             <span key={c}>
-              <span style={{ color: '#FF4FA3' }}>{c}</span>
+              <span style={{ color: '#22E58A' }}>{c}</span>
               {i < a.length - 1 ? ', ' : ''}
             </span>
           ))}
@@ -401,9 +401,9 @@ export default function Terminal({ data, autoplay = true }: Props) {
     <Outer role="region" aria-label="Terminal interactif">
       <Inner>
         <TitleBar aria-hidden="true">
-          <Dot $c="#FF6B6B" />
-          <Dot $c="#FFC857" />
-          <Dot $c="#3DDC97" />
+          <Dot $c="#FF5470" />
+          <Dot $c="#FFC542" />
+          <Dot $c="#22E58A" />
           <TitleText>carelle — bash</TitleText>
         </TitleBar>
 

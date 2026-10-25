@@ -18,7 +18,7 @@ const AdminFallback = (
   <div style={{
     padding: '2rem',
     fontFamily: "'JetBrains Mono', monospace",
-    color: '#FF6B6B',
+    color: '#FF5470',
     fontSize: '0.9rem',
   }}>
     <p>Une erreur s'est produite dans l'interface d'administration.</p>
@@ -27,8 +27,8 @@ const AdminFallback = (
       style={{
         marginTop: '1rem',
         padding: '0.5rem 1rem',
-        background: '#FF4FA3',
-        color: '#140A1E',
+        background: '#22E58A',
+        color: '#03120B',
         border: 'none',
         borderRadius: '8px',
         cursor: 'pointer',

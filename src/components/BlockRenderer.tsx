@@ -25,17 +25,17 @@ const Prose = styled.div`
   p { margin: 0.75rem 0; }
 
   a {
-    color: ${({ theme }) => theme.colors.violet};
+    color: ${({ theme }) => theme.colors.blue};
     text-decoration: underline;
     text-underline-offset: 3px;
-    &:hover { color: ${({ theme }) => theme.colors.violetHover}; }
+    &:hover { color: ${({ theme }) => theme.colors.blueHover}; }
   }
 
   ul, ol { padding-left: 1.5rem; margin: 0.75rem 0; }
   li { margin: 0.3rem 0; }
 
   blockquote {
-    border-left: 3px solid ${({ theme }) => theme.colors.magenta};
+    border-left: 3px solid ${({ theme }) => theme.colors.green};
     padding-left: 1rem;
     color: ${({ theme }) => theme.colors.muted};
     margin: 1rem 0;
@@ -185,9 +185,9 @@ const FigureWrap = styled.figure`
 // Alert block — couleurs du thème
 // ------------------------------------------------------------
 const ALERT_META: Record<AlertLevel, { color: string; icon: string }> = {
-  info:    { color: '#8B5CF6', icon: 'ℹ' },
-  warning: { color: '#FFC857', icon: '⚠' },
-  danger:  { color: '#FF6B6B', icon: '✕' },
+  info:    { color: '#3D8BFF', icon: 'ℹ' },
+  warning: { color: '#FFC542', icon: '⚠' },
+  danger:  { color: '#FF5470', icon: '✕' },
 }
 
 const AlertWrap = styled.div<{ $color: string }>`

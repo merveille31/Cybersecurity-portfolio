@@ -12,7 +12,7 @@ const Wrap = styled.div`
 const Prompt = styled.p`
   font-family: ${({ theme }) => theme.fonts.mono};
   font-size: 0.8rem;
-  color: ${({ theme }) => theme.colors.magenta};
+  color: ${({ theme }) => theme.colors.green};
 `
 
 export default function Login() {

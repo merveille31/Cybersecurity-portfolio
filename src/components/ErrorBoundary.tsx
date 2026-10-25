@@ -15,8 +15,8 @@ const Wrap = styled.div`
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: #140A1E;
-  color: #F5EDF8;
+  background: #03120B;
+  color: #EAF5F1;
   font-family: 'DM Sans', system-ui, sans-serif;
   text-align: center;
   gap: 1rem;
@@ -26,7 +26,7 @@ const Code = styled.p`
   font-family: 'Unbounded', system-ui, sans-serif;
   font-size: 3rem;
   font-weight: 700;
-  color: #FF4FA3;
+  color: #22E58A;
   line-height: 1;
 `
 
@@ -34,12 +34,12 @@ const Title = styled.h1`
   font-family: 'Unbounded', system-ui, sans-serif;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #F5EDF8;
+  color: #EAF5F1;
   margin: 0;
 `
 
 const Msg = styled.p`
-  color: #B8A6C9;
+  color: #8DA2AF;
   font-size: 0.95rem;
   max-width: 48ch;
   line-height: 1.65;
@@ -51,16 +51,16 @@ const ReloadBtn = styled.button`
   padding: 0.6rem 1.5rem;
   border-radius: 10px;
   border: none;
-  background: #FF4FA3;
-  color: #140A1E;
+  background: #22E58A;
+  color: #03120B;
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
   transition: background 0.15s;
 
-  &:hover { background: #FF73B8; }
+  &:hover { background: #4FF0A6; }
   &:focus-visible {
-    outline: 2px solid #8B5CF6;
+    outline: 2px solid #3D8BFF;
     outline-offset: 3px;
   }
 `
@@ -73,7 +73,7 @@ const DevDetail = styled.details`
 
   summary {
     font-size: 0.8rem;
-    color: #B8A6C9;
+    color: #8DA2AF;
     cursor: pointer;
     margin-bottom: 0.5rem;
   }
@@ -81,9 +81,9 @@ const DevDetail = styled.details`
   pre {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.75rem;
-    color: #FF6B6B;
-    background: #1F1230;
-    border: 1px solid #2E1C45;
+    color: #FF5470;
+    background: #0B131A;
+    border: 1px solid #192734;
     border-radius: 8px;
     padding: 1rem;
     overflow-x: auto;

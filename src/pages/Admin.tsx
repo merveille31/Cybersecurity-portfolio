@@ -57,7 +57,7 @@ const Tab = styled(NavLink)`
   &:hover { color: ${({ theme }) => theme.colors.text}; }
   &.active {
     color: ${({ theme }) => theme.colors.text};
-    border-bottom-color: ${({ theme }) => theme.colors.magenta};
+    border-bottom-color: ${({ theme }) => theme.colors.green};
   }
 `
 

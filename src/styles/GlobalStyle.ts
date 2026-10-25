@@ -15,7 +15,11 @@ const GlobalStyle = createGlobalStyle`
     font-family: ${({ theme }) => theme.fonts.sans};
     font-size: 16px;
     line-height: 1.65;
-    background: ${({ theme }) => theme.colors.bg};
+    background:
+      radial-gradient(900px 520px at 8% -10%, rgba(34,229,138,0.10), transparent 60%),
+      radial-gradient(800px 520px at 100% 0%, rgba(61,139,255,0.10), transparent 60%),
+      ${({ theme }) => theme.colors.bg};
+    background-attachment: fixed;
     color: ${({ theme }) => theme.colors.text};
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -31,17 +35,18 @@ const GlobalStyle = createGlobalStyle`
     font-family: ${({ theme }) => theme.fonts.heading};
     color: ${({ theme }) => theme.colors.text};
     line-height: 1.15;
+    letter-spacing: -0.02em;
   }
 
   a {
-    color: ${({ theme }) => theme.colors.violet};
+    color: ${({ theme }) => theme.colors.blue};
     text-decoration: none;
     transition: color 0.15s;
-    &:hover { color: ${({ theme }) => theme.colors.violetHover}; }
+    &:hover { color: ${({ theme }) => theme.colors.blueHover}; }
   }
 
   :focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.violet};
+    outline: 2px solid ${({ theme }) => theme.colors.blue};
     outline-offset: 3px;
     border-radius: 3px;
   }
@@ -51,7 +56,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   ::selection {
-    background: ${({ theme }) => theme.colors.magentaDim};
+    background: rgba(34,229,138,0.28);
     color: ${({ theme }) => theme.colors.text};
   }
 

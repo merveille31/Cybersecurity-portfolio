@@ -94,7 +94,7 @@ const TocItem = styled.li<{ $level: number }>`
     color: ${({ theme }) => theme.colors.muted};
     text-decoration: none;
     transition: color 0.15s;
-    &:hover { color: ${({ theme }) => theme.colors.violet}; }
+    &:hover { color: ${({ theme }) => theme.colors.blue}; }
   }
 `
 

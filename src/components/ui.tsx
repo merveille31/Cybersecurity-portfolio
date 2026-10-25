@@ -29,13 +29,13 @@ export const Skeleton = styled.div<{ $h?: string; $w?: string; $radius?: string 
 
 // ------------------------------------------------------------
 // Badge difficulté — couleurs sémantiques du thème
-// facile → success, moyen → warning, difficile → mandarine, insane → magenta
+// facile → vert, moyen → jaune, difficile → orange, insane → rouge
 // ------------------------------------------------------------
 const DIFFICULTY_COLORS: Record<string, string> = {
-  facile:    '#3DDC97',
-  moyen:     '#FFC857',
-  difficile: '#FF9F45',
-  insane:    '#FF4FA3',
+  facile:    '#22E58A',
+  moyen:     '#FFC542',
+  difficile: '#FF8A3D',
+  insane:    '#FF5470',
 }
 
 export const Badge = styled.span<{ $value: string }>`
@@ -46,8 +46,8 @@ export const Badge = styled.span<{ $value: string }>`
   letter-spacing: 0.04em;
   padding: 2px 9px;
   border-radius: ${({ theme }) => theme.radius.full};
-  color: #140A1E;
-  background: ${({ $value }) => DIFFICULTY_COLORS[$value] ?? '#B8A6C9'};
+  color: #03120B;
+  background: ${({ $value }) => DIFFICULTY_COLORS[$value] ?? '#8DA2AF'};
 `
 
 export const CategoryBadge = styled.span`
@@ -56,9 +56,9 @@ export const CategoryBadge = styled.span`
   font-size: 0.68rem;
   padding: 2px 9px;
   border-radius: ${({ theme }) => theme.radius.sm};
-  color: ${({ theme }) => theme.colors.violet};
-  background: ${({ theme }) => theme.colors.violetDim};
-  border: 1px solid ${({ theme }) => theme.colors.violet}44;
+  color: ${({ theme }) => theme.colors.blue};
+  background: ${({ theme }) => theme.colors.blueDim};
+  border: 1px solid ${({ theme }) => theme.colors.blue}44;
 `
 
 export const Tag = styled.span`
@@ -67,7 +67,7 @@ export const Tag = styled.span`
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radius.sm};
   color: ${({ theme }) => theme.colors.muted};
-  background: ${({ theme }) => theme.colors.surface};
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid ${({ theme }) => theme.colors.border};
 `
 

@@ -41,8 +41,8 @@ const ExternalLink = styled.a`
   transition: border-color 0.2s, color 0.2s;
 
   &:hover {
-    border-color: ${({ theme }) => theme.colors.violet};
-    color: ${({ theme }) => theme.colors.violet};
+    border-color: ${({ theme }) => theme.colors.blue};
+    color: ${({ theme }) => theme.colors.blue};
   }
 `
 

@@ -41,7 +41,7 @@ const Info = styled.div`
 const ItemTitle = styled(Link)`
   color: ${({ theme }) => theme.colors.text};
   font-weight: 600;
-  &:hover { color: ${({ theme }) => theme.colors.magenta}; }
+  &:hover { color: ${({ theme }) => theme.colors.green}; }
 `
 
 const Meta = styled.div`
